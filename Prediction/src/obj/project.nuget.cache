@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "jCnrnh1YVv8=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\diogo\\Desktop\\Pastas\\UA\\Dissertação\\Prediction\\src\\SensorPositionPredictor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\diogo\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\diogo\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,34 @@
+1. Onde está o target spot, a partir do meu POV. (GeoMath)
+- A partir das coordenadas determina:
+	- true bearing, clockwise a partir do true north
+	- distância, usando a formula haversine
+	- angulo de elevação, atan2(spotHeight − yourHeight, distance)
+	
+2. Para onde o telemovel está a apontar. (CameraOrientation)
+- Usa o acelerómetro (que aponta para a gravidade) e magnetómetro:
+	- Up = −accel / |accel|
+	- East = magnetic × Up
+	- North = Up × East
+	
+3. Expressa a direção do target spot nos axis do dispositivo(DirectionInDeviceFrame)
+	- Transforma o bearing (b) e a elevação (e) em direções Norte/Este/Up: east = sin(b)*cos(e), north = cos(b)*cos(e), up = sin(e)
+	- Antes disso, converte o bearing para o norte magnético subtraindo a declinação e adiciona CompassBiasDeg (0, por default)
+	- Depois recombina essa direção com as 3 setas do ponto 2: East*east + North*north + Up*up que resulta num vetor (x, y, z)
+	- Usa as fórmulas atan2(x, depth) e atan2(y, depth) para determinar os ângulos de direção vertical e horizontal
+	- Usa as fórmulas fx * x/depth e fy * y/depth para determinar o pixel offset da posição calculada em relação ao centro
+
+case			real heading	camera heading from raw sensors		error		Unity’s compass		error
+anfs			170.0°		185.32°						+15.32°	173.81°			+3.81°
+dep5			248.0°		249.18°						+1.18°	270.37°			+22.37°
+faraway		140.0°		144.06°						+4.06°	164.53°			+24.53°
+estacionamento	66.0°			66.11°						+0.11°	97.94°			+31.94°
+average												+5.17°					+20.66°
+
+The dip, also called magnetic inclination, is the angle at which Earth’s magnetic field points down into the ground, measured from the horizontal.
+dip = asin( (m · g) / (|m| · |g|) )
+
+case			dip		camera heading error
+estacionamento	55.7°		+0.1°
+dep5			49.8°		+1.2°
+faraway		48.9°		+4.1°
+anfs			43.3°		+15.3°
