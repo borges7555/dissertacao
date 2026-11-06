@@ -1,0 +1,35 @@
+PHOTOMONTAGE do windPRO:
+	- Ideia geral: comparar o horizonte visivel na foto com o horizonte virtual, calculado a partir do modelo digital de elevaçao do terreno
+	
+	- Como calcular o horizonte virtual:
+		- Precisa da posição geográfica da câmara, altitude e um modelo digital de elevação do terreno, normalmente representado por um TIN (Triangulated Irregular Network)
+		- A partir destes dados, calcula os pontos de terreno que bloqueiam a linha de visão da câmara
+		- O horizonte é constituído pelos pontos de bloqueio da linha de visão, calculados para cada grau de direção a partir da posição da câmara
+		- A câmara está num determinado ponto e o software analisa o terreno numa direção específica
+		- Para essa direção, procura os pontos do terreno que definem o limite visual entre o céu e a paisagem a partir dos dados de elevação do terreno (TIN)
+		- Repetindo este processo para cada grau de azimute, obtém uma sequência de pontos que representa o horizonte visível a partir da localização da câmara
+
+	- Como transformar o horizonte virtual numa linha na foto:
+		- Depois de calcular o horizonte em coordenadas geográficas, o software utiliza o modelo da câmara para projetar os pontos na imagem
+		- Este modelo considera parâmetros como:
+			- Pan -> Direção horizontal para onde a câmara aponta (azimute)
+			- Tilt -> Inclinação vertical da câmara
+			- Rotation -> Rotação da imagem em torno do eixo ótico (roll)
+			- Focal length -> Distância focal da objetiva
+			- Camera position -> Posição e altitude da câmara
+		- O resultado é uma linha amarela que representa onde o horizonte calculado deveria aparecer na fotografia, considerando os parâmetros atuais da câmara
+
+	- Como calibrar a foto com a linha:
+		- Depois de comparar a linha do horizonte virtual com o horizonte real, ajustar os parâmetros até os horizontes coincidirem
+		- Os parâmetros principais são o Pan, Tilt e Rotation
+
+	- Fatores importantes para obter um bom resultado:
+		- O modelo digital de elevação tem de representar corretamente o terreno que aparece no horizonte da fotografia
+		- Posição da camara correta
+
+	- Outros metodos do windPro para calibrar fotos e o que permitem calibrar:
+		- Horizon Line -> Pan, Tilt e Rotation
+		- Control Points -> Posição, orientação e distância focal
+		- Wireframe -> Comparação com elementos do terreno em primeiro plano
+		- Auto Optimisation -> Otimização automática dos parâmetros da câmara
+		- Tracelines -> Utilização de referências obtidas através de outras câmaras calibradas

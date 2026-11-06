@@ -1,0 +1,4 @@
+Sky Tonight:
+	- Uses GPS for position and internal sensors (compass/magnetometer, gyroscope and accelerometer) to detect pitch, roll and orientation
+	- Uses that information to calculate where the sky should be relative to the user (uses a catalog of celestial objects plus equations describing how their positions change with time)
+	- Sky Map (Open Source): https://github.com/sky-map-team/stardroid

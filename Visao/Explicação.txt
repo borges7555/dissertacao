@@ -1,0 +1,35 @@
+Focus da camara:
+	- A app usa sempre a mesma camara (através da WebCamTexture que é uma classe dentro da Scripting API do Unity)
+	- Não tem zoom e não permite mudar de camara
+	- Usa autofocus por default
+	- Ao usar autoFocusPoint, a camara foca num ponto determinado apenas uma vez, e depois bloqueia o foco
+	- Alternativa:
+		- Android’s Camera2 API:
+			- Permite desativar o autofocus e escolher LENS_FOCUS_DISTANCE
+			- Utilizá-lo significa criar um plugin nativo para Android (em Java ou Kotlin) que abre a câmera e fornece a visualização para o Unity, substituindo o WebCamTexture
+
+Parametros da camara:
+	- fx = 1329.8 
+	- fy = 1329.1 
+	- cx = 923.0 
+	- cy = 539.8 
+	- RMS (erro de reprojeção) = 0.662  
+	- k = [0.01  1.32 -4.54]
+	- p = [-1.39e-03 -9.33e-03]
+
+meters_per_degree -> calcula quanto 1 grau de latitude e longitude mede em metros no local da foto
+	- m_lat = 111132.92 − 559.82*cos(2φ) + 1.175*cos(4φ)
+	- m_lon = 111412.84*cos(φ) − 93.5*cos(3φ) + 0.118*cos(5φ)
+	- Notas: 
+		- 111132.92 é o valor médio de 1° de latit ude, tomado sobre todas as latitudes
+		- 111412.84 é o coeficiente principal do comprimento de 1° de longitude, multiplicado por cos φ
+
+geo_to_local -> transforma coordenadas Latitude, Longitude, Altura em Este, Norte, Cima em relação à origem
+	- Este = (lon − lon_origem) × m_lon
+	- Norte = (lat − lat_origem) × m_lat
+	- Cima = altura − altura_origem
+
+local_to_geo -> transforma coordenadas Este, Norte, Cima em relação à origem em Latitude, Longitude, Altura
+	- lat = lat_origem + Norte / m_lat
+	- lon = lon_origem + Este / m_lon
+	- altura = altura_origem + Cima

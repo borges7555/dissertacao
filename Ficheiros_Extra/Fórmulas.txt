@@ -1,0 +1,26 @@
+Cálculo dos FOVs:
+	lado = 40cm
+	altura = 130cm
+	h = 396
+	v = 395
+	d = 130
+	visibleWidth = W_real * (W_total / W_object_px) = 0.4 * (1080 / 396) = 1.09
+	horizontalFOV = 2 * atan( (visibleWidth / 2) / D ) = 2 * atan((1.09 / 2) / 1.3) = 45.49
+	visibleHeight = H_real * (H_total / H_object_px) = 0.4 * (1920 / 395) = 1.94
+	verticalFOV = 2 * atan( (visibleHeight / 2) / D ) = 2 * atan((1.94 / 2) / 1.3) = 73.46
+
+Tradução de valores da bússola para mag*:
+	H = F*cos(dip)
+	V = F*sin(dip)
+	Em Aveiro: F = 44.9 µT, dip is 55.1°
+	H = 25.69 µT, V = 36.82 µT
+	magX =  H * sin N
+	magY = −V
+	magZ = −H * cos N
+
+Formula Haversine:
+	R = 6371000  // raio da Terra em metros
+	Δφ = φ2 - φ1  // delta da latitude
+	Δλ = λ2 - λ1  // delta da longitude
+	a = sin²(Δφ/2) + cos(φ1)*cos(φ2)*sin²(Δλ/2)
+	distance = 2 * R * asin(sqrt(a))

@@ -1,0 +1,43 @@
+coordenadas das minhas posições:
+	Atrás do dep. 5:
+		- direção -> norte a 112 graus
+		- altura -> 166 cm
+		- foto tirada em: 40.631679, -8.658937, 9.75
+		- magX -> 23.82 
+		- magY -> -36.82
+		- magZ -> 9.62
+		
+	Perto dos anfs:
+		- direção -> norte a 190 graus
+		- altura -> 162 cm
+		- foto tirada em: 40.632200, -8.659633, 7.41
+		- magX -> 4.46
+		- magY -> -36.82
+		- magZ -> 25.30
+	
+	Ponto mais longe:
+		- direção -> norte a 220 graus
+		- altura -> 163 cm
+		- foto tirada em: 40.632335, -8.660956, 1.68
+		- magX -> -16.51
+		- magY -> -36.82
+		- magZ -> 19.68
+	
+	Parque de carros:
+		- direção -> norte a 294 graus
+		- altura -> 164 cm
+	     	- foto tirada em: 40.630927, -8.660907, 2.05
+	     	- magX -> -23.47
+		- magY -> -36.82
+		- magZ -> -10.45
+	
+coordenadas pontos da biblio:
+	- 40.631278, -8.659628, 22.25/5.05 -> canto esquerdo mais alto virado para dep. 5
+	- 40.631542, -8.659981, 21.12/3.92 -> canto direito mais alto virado para dep. 5
+	- 40.631381, -8.660189, 20.06/2.86 -> canto esquerdo mais alto virado para parque de carros
+
+pontos extra:
+	- 40.631578, -8.659344, 6.000000 -> poste de luz visto do dep5
+	- 40.632175, -8.659642, 5.775875 -> tampa de saneamento visto dos anfs
+	- 40.631944, -8.660367,  -> poste de luz visto da pos. mais longe
+	- 40.630994, -8.660761, 0.390457 -> arvore vista do estacionamento
