@@ -1,0 +1,2 @@
+A aplicação guarda as fotos e os dados dos sensores numa pasta que não é possível aceder através do File Manager do telemóvel.
+Para tal é preciso ligar o telemóvel a um PC por cabo, fazer download das "platform tools" do Android no PC (https://developer.android.com/tools/releases/platform-tools), abrir um terminal na pasta "platform tools", correr "adb devices" para confirmar que o telemóvel está conectado e depois correr "adb pull /storage/emulated/0/Android/data/com.Borges.CameraAndSensors/files/ ./captured_data" para conseguir ver as fotos e os dados no PC.
