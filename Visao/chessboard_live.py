@@ -18,15 +18,20 @@ import cv2
 # Fonte de vídeo do DroidCam:
 #  - com o DroidCam Client no PC aparece como webcam: 1, 2, ... (0 costuma ser a do portátil)
 #  - alternativa por Wi-Fi: "http://<IP_DO_TELEMOVEL>:4747/video"
-CAMERA_SOURCE = 0
+CAMERA_SOURCE = 2
 
 # Resolução pedida à câmara (largura, altura). None = por defeito.
-CAPTURE_SIZE = (1280, 720)
+CAPTURE_SIZE = (1920, 1080)
+
+# Opções para webcam USB (usar as MESMAS da calibração, incluindo o foco):
+CAMERA_BACKEND = cv2.CAP_DSHOW   # Windows: cv2.CAP_DSHOW
+USE_MJPG = True               # True = pede MJPG (muitas webcams só dão 1080p assim)
+LOCK_FOCUS = 45              # None = não mexer; 0..255 = desliga o autofocus e fixa o foco
 
 # Parâmetros da câmara. O ideal é uma calibração feita com ESTE live feed
 # (chessboard7_3.py com USE_CAMERA = True e a mesma resolução). Se o ficheiro tiver
 # 'image_size' com o mesmo rácio mas outra resolução, a matriz K é escalada.
-PARAMS_FILE = 'camera_phone_best.npz'
+PARAMS_FILE = 'camera_logitech_f45.npz'
 
 # Cantos INTERNOS do tabuleiro
 board_w = 6
@@ -106,12 +111,23 @@ print('Parâmetros lidos de %s (resolução da calibração: %s)' % (PARAMS_FILE
 print('Intrinsics:\n', K_file)
 print('Distortion:\n', distortion)
 
-capture = cv2.VideoCapture(CAMERA_SOURCE)
+capture = cv2.VideoCapture(CAMERA_SOURCE, CAMERA_BACKEND)
 if not capture.isOpened():
     raise SystemExit('Não foi possível abrir a fonte de vídeo: %s' % str(CAMERA_SOURCE))
+# A ordem importa: formato -> resolução -> foco
+if USE_MJPG:
+    capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 if CAPTURE_SIZE is not None:
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAPTURE_SIZE[0])
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAPTURE_SIZE[1])
+if LOCK_FOCUS is not None:
+    capture.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    capture.set(cv2.CAP_PROP_FOCUS, LOCK_FOCUS)
+print('Câmara aberta: %dx%d | foco=%s' % (capture.get(cv2.CAP_PROP_FRAME_WIDTH),
+                                         capture.get(cv2.CAP_PROP_FRAME_HEIGHT),
+                                         capture.get(cv2.CAP_PROP_FOCUS)))
+for _ in range(10):      # descarta frames iniciais (exposição e foco a estabilizar)
+    capture.read()
 
 ok, frame = capture.read()
 if not ok:

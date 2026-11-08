@@ -1,3 +1,4 @@
+Telemóvel:
 Poster (61x91) a 121cm de distância (telemovel alinhado com a origem, ligeiramente inclinado):
 	- Posição da câmara relativa à origem (cm):
      		- X (direita +) = 1.4
@@ -30,10 +31,6 @@ Poster a 220cm de distância (telemovel alinhado com o centro do poster):
 	- A câmara aponta 1.5° para a esquerda e 0.0° para baixo relativamente à normal do poster
 	- Erro de reprojeção por ponto (px): [2.64 2.54 1.96 2.07]; Erro médio: 2.30 px
 
-Tabuleiro a 107cm (15.5x19.5):
-	- Posição da câmara relativa à origem (cm):
-     		- X (direita +) = 17.0
-     		- Y (cima +) = 4.3
-     		- Z (afastamento ao poster) = 116.1
-	-  A câmara aponta 4.4° para a esquerda e 0.4° para cima relativamente à normal do poster
-	- Erro de reprojeção por ponto (px): [0.14 0.94 1.38 1.04]; Erro médio: 0.87 px
+///////////////////////////////////////
+
+Logitech:
