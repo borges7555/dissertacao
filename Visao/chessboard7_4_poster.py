@@ -20,9 +20,9 @@ import cv2
 # ---------------------------------------------------------------
 # Configuração
 # ---------------------------------------------------------------
-IMAGE_FILE = 'poster.jpg'
-PARAMS_FILE = 'camera_phone_best.npz'
-OUTPUT_IMAGE = 'poster_pose.jpg'
+IMAGE_FILE = './poster/poster_logitech_220_2.jpg'
+PARAMS_FILE = 'camera_logitech_f18.npz'
+OUTPUT_IMAGE = IMAGE_FILE.replace('.jpg', '_pose_18.jpg')
 CALIB_SIZE = (1920, 1080)    # usado só se o .npz não tiver 'image_size'
 
 # Rodar a imagem depois de a ler: None, cv2.ROTATE_90_CLOCKWISE,

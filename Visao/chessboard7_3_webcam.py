@@ -14,11 +14,11 @@ import glob
 # ---------------------------------------------------------------
 # Configuração
 # ---------------------------------------------------------------
-USE_CAMERA = True        # True -> câmara (webcam USB / DroidCam); False -> fotos (IMAGE_GROUPS)
+USE_CAMERA = False        # True -> câmara (webcam USB / DroidCam); False -> fotos (IMAGE_GROUPS)
 
 # Só com USE_CAMERA = False: lista de grupos de fotos (um padrão glob por grupo).
 # Cada grupo é calibrado em separado para comparar; depois calibra-se com todos juntos.
-IMAGE_GROUPS = ['./unity1/unity*.jpg', './unity2/unity*.jpg']
+IMAGE_GROUPS = ['./logitech_camara_app/*.jpg']
 
 # Fonte de vídeo:
 #  - webcam USB: índice 0, 1, 2... (0 costuma ser a webcam integrada do portátil;
@@ -56,7 +56,7 @@ CAPTURE_SIZE = (1920, 1080)
 SAVE_FRAMES_DIR = 'webcam_frames'
 
 NUM_IMAGES = 20         # nº de vistas a capturar
-OUTPUT_FILE = 'camera_logitech.npz'   # mudar o nome para não sobrescrever calibrações anteriores
+OUTPUT_FILE = 'camera_logitech_f18.npz'   # mudar o nome para não sobrescrever calibrações anteriores
 
 # Flags do calibrateCamera. 0 = modelo completo (k1,k2,p1,p2,k3).
 # Se k2/k3 saírem absurdos (|k3| > ~1), tentar cv2.CALIB_FIX_K3 ou
@@ -100,7 +100,11 @@ def calib_summary(name, objs, imgs, size):
               ('k3 fixo + tangencial 0', F.CALIB_FIX_K3 + F.CALIB_ZERO_TANGENT_DIST),
               ('k2,k3 fixos + tang. 0', F.CALIB_FIX_K2 + F.CALIB_FIX_K3 + F.CALIB_ZERO_TANGENT_DIST),
               ('k3 fixo + tang. 0 + ponto principal fixo',
-               F.CALIB_FIX_K3 + F.CALIB_ZERO_TANGENT_DIST + F.CALIB_FIX_PRINCIPAL_POINT)]
+               F.CALIB_FIX_K3 + F.CALIB_ZERO_TANGENT_DIST + F.CALIB_FIX_PRINCIPAL_POINT),
+              ('k3 fixo + fx=fy (pixeis quadrados)', F.CALIB_FIX_K3 + F.CALIB_FIX_ASPECT_RATIO),
+              ('k2,k3 fixos + fx=fy + tang. 0 + pp fixo',
+               F.CALIB_FIX_K2 + F.CALIB_FIX_K3 + F.CALIB_FIX_ASPECT_RATIO + F.CALIB_ZERO_TANGENT_DIST
+               + F.CALIB_FIX_PRINCIPAL_POINT)]
     for label, fl in models:
         r, K, d, _, _ = cv2.calibrateCamera(objs, imgs, size, None, None, flags=fl)
         print('  %-42s fx=%7.1f fy=%7.1f cx=%6.1f cy=%6.1f RMS=%.3f  k1,k2,k3=%s p1,p2=%s'

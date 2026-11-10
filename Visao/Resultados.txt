@@ -33,4 +33,68 @@ Poster a 220cm de distância (telemovel alinhado com o centro do poster):
 
 ///////////////////////////////////////
 
-Logitech:
+Logitech f45 (calibrada através de livefeed):
+Poster (61x91) a 121cm de distância (telemovel alinhado com a origem, ligeiramente inclinado):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 2.1
+     		- Y (cima +) = 2.9
+     		- Z (afastamento ao poster) = 120.2
+	- A câmara aponta 9.2° para a direita e 16.7° para cima relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [0.65 0.21 1.78 1.82]; Erro médio: 1.12 px
+
+Poster a 121cm de distância (telemovel alinhado com o centro do poster):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 24.2
+     		- Y (cima +) = 40.5
+     		- Z (afastamento ao poster) = 135.4
+	- A câmara aponta 0.4° para a esquerda e 1.6° para baixo relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [2.75 2.95 3.69 3.53]; Erro médio: 3.23 px
+
+Poster a 220cm de distância (telemovel alinhado com a origem, ligeiramente inclinado):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = -0.1
+     		- Y (cima +) = 5.2
+     		- Z (afastamento ao poster) = 192.4
+	- A câmara aponta 9.0° para a direita e 10.0° para cima relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [0.82 1.95 2.4  1.38]; Erro médio: 1.64 px
+
+Poster a 220cm de distância (telemovel alinhado com o centro do poster):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 19.4
+     		- Y (cima +) = 36.9
+     		- Z (afastamento ao poster) = 185.2
+	- A câmara aponta 2.6° para a esquerda e 0.5° para baixo relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [2.37 3.24 3.43 2.63]; Erro médio: 2.92 px
+
+Logitech f18 (calibrada através de fotos tiradas com a app da câmara do PC):
+Poster (61x91) a 121cm de distância (telemovel alinhado com a origem, ligeiramente inclinado):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 3.7
+     		- Y (cima +) = -1.5
+     		- Z (afastamento ao poster) = 121.4
+	- A câmara aponta 8.2° para a direita e 19.8° para cima relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [0.02 1.55 3.41 2.64]; Erro médio: 1.90 px
+
+Poster a 121cm de distância (telemovel alinhado com o centro do poster):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 23.9
+     		- Y (cima +) = 36.2
+     		- Z (afastamento ao poster) = 138.8
+	- A câmara aponta 0.2° para a esquerda e 4.6° para baixo relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [0.39 0.33 0.28 0.36]; Erro médio: 0.34 px
+
+Poster a 220cm de distância (telemovel alinhado com a origem, ligeiramente inclinado):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 6.7
+     		- Y (cima +) = -4.1
+     		- Z (afastamento ao poster) = 194.1
+	- A câmara aponta 9.0° para a direita e 10.0° para cima relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [0.32 0.29 1.12 1.09]; Erro médio: 0.70 px
+
+Poster a 220cm de distância (telemovel alinhado com o centro do poster):
+	- Posição da câmara relativa à origem (cm):
+     		- X (direita +) = 26.9
+     		- Y (cima +) = 24.8
+     		- Z (afastamento ao poster) = 189.6
+	- A câmara aponta 0.3° para a esquerda e 5.2° para baixo relativamente à normal do poster
+	- Erro de reprojeção por ponto (px): [1.24 1.3  0.74 0.62]; Erro médio: 0.97 px
