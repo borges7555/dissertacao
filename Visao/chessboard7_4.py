@@ -14,10 +14,10 @@ import cv2
 # ---------------------------------------------------------------
 # Configuração
 # ---------------------------------------------------------------
-IMAGE_FILE = './targets/anfs.jpg'
-PARAMS_FILE = 'camera_phone_best.npz'
-OUTPUT_IMAGE = './targets/anfs_pose.jpg'
-CALIB_SIZE = (1280, 720)     # usado só se o .npz não tiver 'image_size'
+IMAGE_FILE = './Medium_example/Boston_Harbor.png'
+PARAMS_FILE = './Medium_example/camera_boston.npz'
+OUTPUT_IMAGE = './Medium_example/Boston_Harbor_pose.jpg'
+CALIB_SIZE = (1920, 1080)     # usado só se o .npz não tiver 'image_size'
 
 # Rodar a imagem depois de a ler: None, cv2.ROTATE_90_CLOCKWISE,
 # cv2.ROTATE_90_COUNTERCLOCKWISE ou cv2.ROTATE_180
@@ -40,17 +40,21 @@ COORDS = 'geo'               # 'geo' ou 'local' (só para MODE='points')
 
 # --- MODE = 'points' ---
 POINTS_3D = np.array([
-    [40.631278, -8.659628, 22.25],       # ponto 1
-    [40.631542, -8.659981, 21.12],       # ponto 2
-    [40.631278, -8.659628, 5.05],        # ponto 3
-    [40.631542, -8.659981, 3.92],        # ponto 4
-    [40.632175, -8.659642, 5.775875],
+    [42.352778, -71.045000, 63],       # ponto 1
+    [42.349580, -71.075236, 240],       # ponto 2
+    [42.351944, -71.055833, 119],        # ponto 3
+    [42.355556, -71.051667, 134],        # ponto 4
+    [42.356111, -71.051389, 119],
+    [42.357500, -71.050278, 75]
 ], dtype=np.float64)
 
 # Posição dos mesmos pontos na imagem JÁ RODADA, em pixéis (x, y), mesma ordem.
 # Se None, abre-se a imagem e clica-se nos pontos pela ordem de POINTS_3D.
 # (O script imprime os pixéis clicados: copiar para aqui evita voltar a clicar.)
-POINTS_2D = None
+POINTS_2D = np.array([[357,  734], [568, 635], 
+                      [630, 666], [1006, 656], 
+                      [1068, 673], [1245, 729]
+], dtype=np.float64)
 # POINTS_2D = np.array([[645.12, 837.12], [689.28, 228.48],
 #                       [942.72, 840.96], [935.04, 224.64]], dtype=np.float64)
 
@@ -204,7 +208,7 @@ def solve_pose():
     else:
         # ITERATIVE usa DLT sem uma estimativa inicial e exige pelo menos
         # 6 correspondências não coplanares. SQPNP suporta 3 ou mais.
-        flags = cv2.SOLVEPNP_AP3P if n == 4 else cv2.SOLVEPNP_SQPNP
+        flags = cv2.SOLVEPNP_AP3P if n == 4 else cv2.SOLVEPNP_ITERATIVE #SQPNP
         ok, rv, tv = cv2.solvePnP(obj_pts, img_pts, intrinsics, distortion, flags=flags)
         pairs = [(rv, tv)] if ok else []
     for rv, tv in pairs:

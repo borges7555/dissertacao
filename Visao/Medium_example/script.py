@@ -15,6 +15,11 @@ from scipy.optimize import least_squares
 BASE_DIR = Path(__file__).resolve().parent
 IMAGE_PATH = BASE_DIR / "Boston_Harbor.png"
 
+# Output file with the best camera parameters found. Same format as the .npz written by
+# chessboard7_3.py (keys: intrinsics, distortion, image_size), so it can be read by
+# chessboard7_4.py (set PARAMS_FILE to this file).
+OUTPUT_FILE = BASE_DIR / "camera_boston.npz"
+
 # Local ENU origin (WGS84 latitude, longitude, altitude in metres).
 origin_lat = 42.35256
 origin_lon = -71.0465
@@ -34,6 +39,9 @@ poi_data = pd.DataFrame({
 VFOV_MIN_DEG = 20.0
 VFOV_MAX_DEG = 120.0
 VFOV_STEP_DEG = 5.0
+# Set a value to skip the automatic LOO search and use it as the initial VFOV.
+# Keep None to select the initial VFOV automatically.
+MANUAL_VFOV_DEG = 80.94
 
 MAX_OPTIMIZER_EVALUATIONS = 1200
 OPTIMIZER_TOLERANCE = 1e-8
@@ -325,107 +333,119 @@ def main():
         origin_alt,
     )
 
-    vfov_values = np.arange(
-        VFOV_MIN_DEG,
-        VFOV_MAX_DEG + VFOV_STEP_DEG * 0.5,
-        VFOV_STEP_DEG,
-        dtype=np.float64,
-    )
-
-    rows = []
-    total = len(vfov_values) * len(poi_data)
-    run_no = 0
-    print(f"Testing {len(vfov_values)} VFOV values; {total} LOO calibrations.")
-
-    for vfov in vfov_values:
-        for held_out_index in range(len(poi_data)):
-            run_no += 1
-            try:
-                result = run_loo_fold(
-                    float(vfov), poi_enu, poi_xy, held_out_index,
-                    image_width, image_height,
-                )
-                rows.append({
-                    "vfov_initial_deg": float(vfov),
-                    "held_out_poi_id": int(poi_data.iloc[held_out_index]["id"]),
-                    "loo_error_px": result["loo_error_px"],
-                    "train_rmse_px": result["train_rmse_px"],
-                    "vfov_final_deg": result["vfov_final_deg"],
-                    "focal_px": result["focal_px"],
-                    "camera_east_m": float(result["camera_enu"][0]),
-                    "camera_north_m": float(result["camera_enu"][1]),
-                    "camera_up_m": float(result["camera_enu"][2]),
-                    "optimizer_success": result["optimizer_success"],
-                    "status": "ok" if result["optimizer_success"] else "not_converged",
-                })
-            except (cv2.error, ValueError, RuntimeError,
-                    np.linalg.LinAlgError, FloatingPointError) as exc:
-                rows.append({
-                    "vfov_initial_deg": float(vfov),
-                    "held_out_poi_id": int(poi_data.iloc[held_out_index]["id"]),
-                    "status": "failed",
-                    "error_message": str(exc).replace("\n", " ")[:400],
-                })
-
-            if run_no % 30 == 0 or run_no == total:
-                print(f"Completed {run_no}/{total} calibrations...")
-
-    detailed = pd.DataFrame(rows)
-
-    valid = detailed[detailed["status"] == "ok"].copy()
-    summary_rows = []
-    for vfov, group in valid.groupby("vfov_initial_deg"):
-        centres = group[[
-            "camera_east_m", "camera_north_m", "camera_up_m"
-        ]].to_numpy(dtype=np.float64)
-        mean_centre = centres.mean(axis=0)
-        deviations = np.linalg.norm(centres - mean_centre, axis=1)
-        summary_rows.append({
-            "vfov_initial_deg": float(vfov),
-            "successful_folds": int(len(group)),
-            "loo_mean_error_px": float(group["loo_error_px"].mean()),
-            "loo_median_error_px": float(group["loo_error_px"].median()),
-            "loo_std_error_px": float(group["loo_error_px"].std(ddof=0)),
-            "camera_position_rms_spread_m": float(
-                np.sqrt(np.mean(deviations**2))
-            ),
-            "vfov_final_mean_deg": float(group["vfov_final_deg"].mean()),
-            "focal_mean_px": float(group["focal_px"].mean()),
-        })
-
-    if not summary_rows:
-        raise RuntimeError(
-            "No VFOV value produced a successful LOO calibration."
+    if MANUAL_VFOV_DEG is not None:
+        best_vfov = float(MANUAL_VFOV_DEG)
+        if not 0.0 < best_vfov < 180.0:
+            raise ValueError(
+                "MANUAL_VFOV_DEG must be between 0 and 180 degrees (exclusive)."
+            )
+        best = None
+        print(f"Using manually selected initial VFOV: {best_vfov:.3f} deg")
+    else:
+        vfov_values = np.arange(
+            VFOV_MIN_DEG,
+            VFOV_MAX_DEG + VFOV_STEP_DEG * 0.5,
+            VFOV_STEP_DEG,
+            dtype=np.float64,
         )
 
-    summary = pd.DataFrame(summary_rows).sort_values(
-        "vfov_initial_deg"
-    ).reset_index(drop=True)
+        rows = []
+        total = len(vfov_values) * len(poi_data)
+        run_no = 0
+        print(f"Testing {len(vfov_values)} VFOV values; {total} LOO calibrations.")
 
-    eligible = summary[
-        summary["successful_folds"] >= MIN_SUCCESSFUL_FOLDS_FOR_RANKING
-    ].copy()
-    if eligible.empty:
-        raise RuntimeError(
-            "No tested VFOV has enough successful LOO folds to rank it."
-        )
+        for vfov in vfov_values:
+            for held_out_index in range(len(poi_data)):
+                run_no += 1
+                try:
+                    result = run_loo_fold(
+                        float(vfov), poi_enu, poi_xy, held_out_index,
+                        image_width, image_height,
+                    )
+                    rows.append({
+                        "vfov_initial_deg": float(vfov),
+                        "held_out_poi_id": int(poi_data.iloc[held_out_index]["id"]),
+                        "loo_error_px": result["loo_error_px"],
+                        "train_rmse_px": result["train_rmse_px"],
+                        "vfov_final_deg": result["vfov_final_deg"],
+                        "focal_px": result["focal_px"],
+                        "camera_east_m": float(result["camera_enu"][0]),
+                        "camera_north_m": float(result["camera_enu"][1]),
+                        "camera_up_m": float(result["camera_enu"][2]),
+                        "optimizer_success": result["optimizer_success"],
+                        "status": "ok" if result["optimizer_success"] else "not_converged",
+                    })
+                except (cv2.error, ValueError, RuntimeError,
+                        np.linalg.LinAlgError, FloatingPointError) as exc:
+                    rows.append({
+                        "vfov_initial_deg": float(vfov),
+                        "held_out_poi_id": int(poi_data.iloc[held_out_index]["id"]),
+                        "status": "failed",
+                        "error_message": str(exc).replace("\n", " ")[:400],
+                    })
 
-    # Lowest held-out prediction error wins; camera-position spread breaks ties.
-    best = eligible.sort_values(
-        ["loo_mean_error_px", "camera_position_rms_spread_m"]
-    ).iloc[0]
-    best_vfov = float(best["vfov_initial_deg"])
+                if run_no % 30 == 0 or run_no == total:
+                    print(f"Completed {run_no}/{total} calibrations...")
+
+        detailed = pd.DataFrame(rows)
+
+        valid = detailed[detailed["status"] == "ok"].copy()
+        summary_rows = []
+        for vfov, group in valid.groupby("vfov_initial_deg"):
+            centres = group[[
+                "camera_east_m", "camera_north_m", "camera_up_m"
+            ]].to_numpy(dtype=np.float64)
+            mean_centre = centres.mean(axis=0)
+            deviations = np.linalg.norm(centres - mean_centre, axis=1)
+            summary_rows.append({
+                "vfov_initial_deg": float(vfov),
+                "successful_folds": int(len(group)),
+                "loo_mean_error_px": float(group["loo_error_px"].mean()),
+                "loo_median_error_px": float(group["loo_error_px"].median()),
+                "loo_std_error_px": float(group["loo_error_px"].std(ddof=0)),
+                "camera_position_rms_spread_m": float(
+                    np.sqrt(np.mean(deviations**2))
+                ),
+                "vfov_final_mean_deg": float(group["vfov_final_deg"].mean()),
+                "focal_mean_px": float(group["focal_px"].mean()),
+            })
+
+        if not summary_rows:
+            raise RuntimeError(
+                "No VFOV value produced a successful LOO calibration."
+            )
+
+        summary = pd.DataFrame(summary_rows).sort_values(
+            "vfov_initial_deg"
+        ).reset_index(drop=True)
+
+        eligible = summary[
+            summary["successful_folds"] >= MIN_SUCCESSFUL_FOLDS_FOR_RANKING
+        ].copy()
+        if eligible.empty:
+            raise RuntimeError(
+                "No tested VFOV has enough successful LOO folds to rank it."
+            )
+
+        # Lowest held-out prediction error wins; camera-position spread breaks ties.
+        best = eligible.sort_values(
+            ["loo_mean_error_px", "camera_position_rms_spread_m"]
+        ).iloc[0]
+        best_vfov = float(best["vfov_initial_deg"])
 
     # Refit once using ALL POIs to obtain one definitive set of camera params.
     final = fit_camera(
         best_vfov, poi_enu, poi_xy, image_width, image_height
     )
 
-    print("\n================ BEST INITIAL VFOV ================")
-    print(f"Best initial VFOV:             {best_vfov:.3f} deg")
-    print(f"Mean LOO prediction error:      {best['loo_mean_error_px']:.3f} px")
-    print(f"LOO error standard deviation:  {best['loo_std_error_px']:.3f} px")
-    print(f"Camera-position RMS spread:    {best['camera_position_rms_spread_m']:.3f} m")
+    print("\n================ INITIAL VFOV ================")
+    if best is None:
+        print(f"Manually selected initial VFOV: {best_vfov:.3f} deg")
+    else:
+        print(f"Best initial VFOV:             {best_vfov:.3f} deg")
+        print(f"Mean LOO prediction error:      {best['loo_mean_error_px']:.3f} px")
+        print(f"LOO error standard deviation:  {best['loo_std_error_px']:.3f} px")
+        print(f"Camera-position RMS spread:    {best['camera_position_rms_spread_m']:.3f} m")
 
     print("\n======= FINAL CAMERA FIT (USING ALL POIs) =======")
     print(f"Final calibrated VFOV:         {final['vfov_final_deg']:.3f} deg")
@@ -445,6 +465,17 @@ def main():
     print(f"  Latitude:  {final['camera_lat']:.8f} deg")
     print(f"  Longitude: {final['camera_lon']:.8f} deg")
     print(f"  Altitude:  {final['camera_alt_ellipsoid_m']:.3f} m (ellipsoid)")
+
+    # Save the best parameters (final fit with all POIs and the best VFOV).
+    # Same layout as chessboard7_3.py: intrinsics 3x3, distortion 1x5 (k1, k2, p1, p2, k3),
+    # image_size = (width, height) of the image used here.
+    np.savez(
+        OUTPUT_FILE,
+        intrinsics=np.asarray(final["camera_matrix"], dtype=np.float64),
+        distortion=np.asarray(final["distortion"], dtype=np.float64).reshape(1, 5),
+        image_size=np.array([image_width, image_height]),
+    )
+    print(f"\nCamera parameters saved to {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
