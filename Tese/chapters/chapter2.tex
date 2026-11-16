@@ -1,6 +1,279 @@
 \chapter{State of the Art}
 \label{chap:state_of_the_art}
 
-begin{introduction}
-...
-end{introduction}
+\begin{introduction}
+
+\end{introduction}
+
+%======================================================================
+\section{Enquadramento: AR Geo-referenciada em Exteriores}
+\label{sec:sota_enquadramento}
+
+Designa-se por \textit{GeoAR} (AR baseada em dados geográficos) a apresentação de objetos virtuais em posições geográficas concretas, por exemplo turbinas eólicas planeadas, sobrepostos à imagem da câmara de um dispositivo móvel. Enquanto para cenários de AR em interiores e de curto alcance existem ferramentas de desenvolvimento estabelecidas (por exemplo, ARCore e ARKit), a GeoAR enfrenta desafios adicionais para os quais não existiam ferramentas disponíveis no mercado~\cite[Sec.~2.2.2.1]{ar4wind2023}. Dois problemas são recorrentes na literatura e nos trabalhos analisados.
+
+\paragraph{Localização geo-referenciada.} A apresentação com posição correta exige conhecer a posição e a orientação do dispositivo num sistema de coordenadas geográfico. Os sensores integrados nos dispositivos móveis (recetor GPS para a posição e bússola digital para a orientação) são demasiado imprecisos, o que faz com que o objeto virtual surja na posição errada do ecrã e leve a uma perceção errada da sua localização na paisagem~\cite[Sec.~1.2 e 2.2.2.1]{ar4wind2023}.
+
+\paragraph{Oclusão em campo distante.} Para um resultado credível, os objetos virtuais têm de ser ocultados por elementos reais, como vegetação, relevo ou edifícios. Os sensores dos dispositivos móveis apenas permitem reconstruir digitalmente o ambiente imediato, num raio de poucos metros, pelo que a oclusão por elementos distantes (por exemplo, uma floresta) não é obtida de forma direta~\cite[Sec.~2.2.2.1]{ar4wind2023}.
+
+A resolução conjunta destes dois problemas é designada \textit{calibração GeoAR}: antes de a visualização ser correta, o sistema tem de ser ajustado de modo a permitir uma localização precisa e uma oclusão correta~\cite{ar4wind2023}.
+
+\subsection{Famílias de Abordagens}
+\label{sec:sota_familias}
+
+Com base nos trabalhos analisados, distinguem-se as seguintes famílias de abordagens:
+
+\begin{itemize}
+    \item \textbf{Abordagens automáticas baseadas em imagem.} Comparam a imagem da câmara com modelos 3D de grandes áreas previamente registadas (nuvens de pontos). O relatório do \textit{ar4wind} remete para a literatura sobre geo-localização visual em larga escala~\cite{zamir2018geoloc} e para revisões da investigação em AR~\cite{kim2018ismar}, mas considera estas soluções lentas, propensas a erros e dificilmente transferíveis para áreas extensas arbitrárias~\cite[Sec.~1.2 e 2.2.2.1]{ar4wind2023}.
+    \item \textbf{Serviços proprietários de posicionamento visual.} O exemplo referido é o \textit{Visual Positioning System} (VPS) da Google, disponível através da \textit{ARCore Geospatial API}. Depende dos dados do fornecedor (em parte antigos) e funciona apenas ao longo de vias públicas selecionadas, não em propriedade privada nem em espaços abertos como prados e florestas~\cite[Sec.~2.4]{ar4wind2023}.
+    \item \textbf{Calibração manual assistida pelo utilizador.} O utilizador corrige a posição e a orientação com ajuda de mapas, pontos de referência ou modelos 3D da paisagem sobrepostos à imagem. É a abordagem adotada no \textit{ar4wind} (Secção~\ref{sec:ar4wind_calibracao}).
+    \item \textbf{Calibração a partir de correspondências 2D--3D.} Estima os parâmetros intrínsecos e extrínsecos da câmara minimizando o erro de reprojeção de pontos com coordenadas geográficas conhecidas (Secção~\ref{sec:sunkara})~\cite{sunkara2025}.
+    \item \textbf{Calibração com âncoras georreferenciadas.} Um especialista regista previamente uma âncora num local, que permite a calibração automática por utilizadores comuns (Secção~\ref{sec:ar4wind_metodoC}).
+\end{itemize}
+
+%======================================================================
+\section{Trabalhos Analisados}
+\label{sec:sota_trabalhos}
+
+%----------------------------------------------------------------------
+\subsection{Relatório Final do Projeto \textit{ar4wind}}
+\label{sec:ar4wind}
+
+\begin{table}[htbp]
+\centering
+\caption{Ficha do trabalho: relatório final do projeto \textit{ar4wind}.}
+\label{tab:ficha_ar4wind}
+\small
+\begin{tabular}{p{3.2cm}p{9.8cm}}
+\hline
+\textbf{Referência} & \textit{Schlussbericht des Projekts ar4wind}~\cite{ar4wind2023} (relatório em alemão, 52 páginas) \\
+\textbf{Âmbito} & Visualização \textit{in situ} de turbinas eólicas planeadas com AR móvel (mAR), em processos de participação pública \\
+\textbf{Foco neste capítulo} & Localização e calibração GeoAR (Sec.~2.2.2 do relatório) e resultados da avaliação em campo (Sec.~2.2.4) \\
+\textbf{Plataforma} & Unity; iPad (iOS) e Samsung Galaxy Tab (Android) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Contexto e Objetivos}
+
+A escolha de locais para parques eólicos terrestres gera frequentemente debates longos e controversos, sendo criticados os impactos acústicos e visuais e a alteração da paisagem. O \textit{ar4wind} investigou em que medida visualizações de turbinas em telemóveis ou \textit{tablets} podem apoiar debates locais baseados em factos, em processos de participação informais. Na prática comercial, as visualizações fotorrealistas eram produzidas em computador por especialistas, limitadas a pontos de vista pré-definidos (fotomontagens estáticas) ou realizadas em realidade virtual~\cite[Sec.~1.1 e 1.2]{ar4wind2023}.
+
+À data da candidatura, o relatório refere que não existia nenhuma solução comercial de mAR adequada à visualização realista de turbinas eólicas. Eram conhecidas apenas três implementações de projetos de investigação: o ``MoDal-MR'' da LandPlan OS, o ``mARGo'' da HTW Berlin e o ``Linthwind'' da Echtzeit GmbH e da ZHAW (Suíça). Eram protótipos com funcionalidades básicas, cuja adequação a processos de participação pública não tinha sido investigada de forma sistemática~\cite[Sec.~1.2]{ar4wind2023}.
+
+Do ponto de vista dos utilizadores, a análise de necessidades, assente em entrevistas a peritos\footnote{O relatório refere doze entrevistas na Secção~2.1 e dezasseis na Secção~2.2.1.2.} e num \textit{workshop} com cerca de 20 participantes em novembro de 2021, identificou quatro grupos primários (municípios, planeamento regional, acompanhamento de processos e promotores de projetos) e dois secundários (cidadãos e peritos) \cite[Sec.~2.1 e 2.2.1.2]{ar4wind2023}.
+
+\subsubsection{Calibração GeoAR}
+\label{sec:ar4wind_calibracao}
+
+O relatório propõe três métodos de calibração manual ou assistida, resumidos na Tabela~\ref{tab:ar4wind_metodos}. Os métodos A e B foram implementados e avaliados nos protótipos; o método C foi concebido e implementado como protótipo, mas não pôde ser testado em casos práticos~\cite[Sec.~2.2.2.4]{ar4wind2023}.
+
+\paragraph{Método A: ponto de referência e segmentação do céu.}
+\label{sec:ar4wind_metodoA}
+O método decorre em três passos. Primeiro, a posição estimada por GNSS é corrigida manualmente numa vista de mapa (imagem de satélite). Segundo, o utilizador define no mapa um ponto de referência visível a partir do local (por exemplo, uma torre de igreja, o telhado de uma casa ou uma árvore isolada) e, na vista de AR, roda o dispositivo até que uma linha de referência virtual aponte para o ponto real correspondente, o que determina a orientação. Terceiro, define-se o céu na imagem da câmara selecionando manualmente intervalos de cor típicos do céu (com um limiar de sensibilidade ajustável), de forma a separar as zonas onde a turbina é visível (céu) das zonas em que é ocultada (relevo, edifícios, vegetação)~\cite[Sec.~2.2.2.2 e 2.2.3.1]{ar4wind2023}.
+
+A vantagem principal é a flexibilidade espacial: pode ser usado em qualquer local sem depender de modelos 3D externos, além do material cartográfico. As desvantagens são o elevado esforço manual (muitos passos de interação), a dificuldade de encontrar pontos de referência correspondentes entre o mapa e a vista real e a dependência da qualidade da segmentação face à cor do céu, que não funciona bem com contrastes elevados (por exemplo, céu azul com nuvens)~\cite[Sec.~2.2.2.2]{ar4wind2023}.
+
+\paragraph{Método B: modelos 3D da paisagem.}
+\label{sec:ar4wind_metodoB}
+O método usa modelos geográficos 3D públicos (modelos digitais de superfície, de terreno e modelos 3D de cidades), tanto como auxiliar visual de calibração como para a oclusão. Os dados disponibilizados pelos institutos cartográficos estaduais em formato textual são convertidos \textit{offline} por um \textit{pipeline} de processamento de geodados em pequenos \textit{tiles} 3D, num sistema de coordenadas comum e num formato 3D eficiente, comprimidos e guardados num servidor com metadados, de onde o cliente mAR os obtém a pedido. As etapas do \textit{pipeline} são: conversão do sistema de coordenadas, geração de \textit{tiles}, redução e compressão, geração de malhas 3D e geração de metadados~\cite[Sec.~2.2.2.3, Fig.~11]{ar4wind2023}.
+
+No cliente, o utilizador começa por corrigir a posição no mapa. Em seguida, o modelo 3D da envolvente é mostrado na vista de AR, mas inicialmente desalinhado, devido à imprecisão dos sensores de orientação (IMU) e da bússola. O utilizador ajusta-o à paisagem real com gestos de arrastamento: um dedo corrige a rotação do dispositivo e dois dedos corrigem a altura. O processo demora normalmente poucos segundos e, depois de alinhado, o modelo proporciona a oclusão correta das turbinas~\cite[Sec.~2.2.2.3, Fig.~12]{ar4wind2023}.
+
+As recomendações de utilização reunidas pelo relatório (Figura~13 do relatório) incluem: uma correção da orientação global com elevada precisão, independente do local (cerca de 1 grau de desvio); ajuda e tutoriais integrados; pré-determinação da posição por mapa; seleção flexível de locais, uma vez que existem objetos de referência (árvores, edifícios, colinas) em quase todos os locais; foco num único campo de visão durante a calibração; calibração manual da altura; preferência por modelos de superfície e de terreno texturizados (o modelo de terreno quando existem cadeias de montanhas ou colinas visíveis, caso contrário o modelo de superfície texturizado); e preferência por \textit{smartphones} de ecrã grande em modo vertical, devendo ser ponderados gestos alternativos para \textit{tablets} em modo horizontal~\cite[Fig.~13]{ar4wind2023}.
+
+A vantagem é uma calibração mais rápida e, idealmente, mais simples, com oclusão automática por relevo, edifícios e vegetação, sem seleção do céu. As desvantagens são o maior esforço de implementação, a necessidade de grande capacidade de armazenamento e de infraestrutura informática, e o facto de estes modelos ainda não estarem disponíveis gratuitamente, com qualidade e atualidade equivalentes, em todos os estados federados alemães~\cite[Sec.~2.2.2.3]{ar4wind2023}. O relatório indica ainda que a descrição detalhada deste método foi publicada na literatura do consórcio~\cite{burkard2022gistam,burkard2022icict,burkard2022eis}.
+
+\paragraph{Método C: âncoras em locais pré-definidos.}
+\label{sec:ar4wind_metodoC}
+Nos ensaios verificou-se que os métodos A e B não são totalmente autoexplicativos e que uma formação prévia pode ser uma barreira para públicos alargados. Para visualizações em locais previamente definidos, o método C introduz âncoras de AR georreferenciadas, criadas antecipadamente por utilizadores formados (``peritos''), que desoneram os utilizadores comuns da tarefa de calibração. O processo tem dois passos~\cite[Sec.~2.2.2.4]{ar4wind2023}:
+
+\begin{enumerate}
+    \item \textbf{Criação da âncora (perito):} num local de visualização, determina-se a posição e a orientação globais do dispositivo com o método B. Em seguida, captura-se o ambiente imediato de vários ângulos com movimentos da câmara e cria-se, ao nível do solo, uma nuvem de pontos 3D de elevada qualidade. A âncora e a informação de calibração (posição e orientação da âncora e modelos 3D utilizados) ficam guardadas num servidor.
+    \item \textbf{Deteção automática da âncora (utilizador):} no local, o utilizador capta brevemente o ambiente (movendo o dispositivo) até a âncora ser reconhecida. O dispositivo fica localizado e calibrado automaticamente, e os modelos 3D associados asseguram a oclusão como no método B.
+\end{enumerate}
+
+A vantagem é que o passo manual exigente é feito uma só vez, por uma pessoa formada. As desvantagens são a restrição a locais pré-definidos e pré-referenciados, a necessidade de investigar que condições os locais devem cumprir (por exemplo, a existência de objetos fixos e marcantes) e o impacto de alterações visuais, como as sazonais, na robustez da âncora. Aplicam-se ainda as limitações do método B, por este ser usado na criação da âncora~\cite[Sec.~2.2.2.4]{ar4wind2023}. O mesmo grupo de autores publicou um \textit{framework} para registo global automático com âncoras georreferenciadas~\cite{burkard2024anchors}.
+
+\begin{table}[htbp]
+\centering
+\caption{Métodos de calibração GeoAR do projeto \textit{ar4wind}~\cite{ar4wind2023}.}
+\label{tab:ar4wind_metodos}
+\small
+\begin{tabular}{p{2.5cm}p{3.5cm}p{3.5cm}p{3.5cm}}
+\hline
+ & \textbf{A: referência e céu} & \textbf{B: modelo 3D} & \textbf{C: âncora} \\
+\hline
+Posição & Correção manual no mapa & Correção manual no mapa & Obtida da âncora \\
+Orientação & Linha de referência alinhada com um ponto real & Alinhamento por gestos do modelo 3D com a paisagem & Obtida da âncora \\
+Oclusão & Segmentação do céu por cor & Modelo 3D alinhado & Modelos 3D associados à âncora \\
+Dados externos & Mapas & Modelos 3D públicos (via servidor) & Âncoras pré-registadas e modelos 3D \\
+Principal limitação & Esforço manual; sensível à cor do céu & Disponibilidade de modelos 3D e infraestrutura & Só em locais pré-registados \\
+Estado & Avaliado em campo & Avaliado em campo & Protótipo, não testado em campo \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Avaliação dos Métodos de Calibração}
+
+Os métodos A e B foram implementados em aplicações Unity para \textit{tablets}: o método A em iPad e o método B em Samsung Galaxy Tab. Foram depois avaliados em duas séries de ensaios de campo~\cite[Sec.~2.2.3 e 2.2.4]{ar4wind2023}.
+
+Na \textbf{série I} (2022, protótipo 1 com o método A, quatro locais, cerca de 100 participantes e 48 questionários), a calibração manual consumiu grande parte do tempo dos eventos, e as restantes funcionalidades da aplicação praticamente não puderam ser avaliadas. Concluiu-se que o método A é exigente para leigos e mais adequado a peritos~\cite[Sec.~2.2.4.1]{ar4wind2023}.
+
+Na \textbf{série II} (2023, qualitativa, cerca de 30 participantes), o método B foi avaliado em Berlim (Volkspark Wuhlheide), num caso de planeamento fictício com doze turbinas a 1000--2000 metros. As principais observações sobre a calibração foram~\cite[Sec.~2.2.4.2]{ar4wind2023}:
+
+\begin{itemize}
+    \item A calibração com o método B foi percebida como mais simples e rápida do que com o método A, e a visualização do modelo 3D aumenta a credibilidade, porque o alinhamento e as oclusões são sempre compreensíveis. Em geral, é mais adequado para leigos.
+    \item No método A, a dificuldade está em escolher objetos de referência e em encontrá-los no mapa, e a segmentação do céu depende muito do seu aspeto (por exemplo, céu azul com nuvens), podendo ser demorada.
+    \item Em locais com vegetação ou construção densas (por exemplo, uma pequena clareira), a visualização do modelo 3D pode ser confusa e a oclusão incorreta se o modelo não reproduzir esses objetos com resolução suficiente. Nesses casos, ou quando não existem modelos 3D atuais, o método A pode ser mais adequado.
+    \item A calibração não é totalmente autoexplicativa, pelo que se recomenda uma introdução prévia aos utilizadores. Após uma observação prolongada, é útil recalibrar, o que é rápido com o método B.
+\end{itemize}
+
+Como limitações, o método C continua apenas ao nível de protótipo, sem testes de campo, o método B depende da disponibilidade de modelos 3D de qualidade, e a avaliação baseou-se em amostras reduzidas e selecionadas~\cite[Sec.~2.2.2.4 e 2.3]{ar4wind2023}. Como trabalho futuro, o relatório aponta a automatização total do processo de calibração, a que o método C procura dar resposta.
+
+\subsubsection{Soluções Relacionadas Referidas no Relatório}
+
+Além do VPS da Google (Secção~\ref{sec:sota_familias}), o relatório refere apenas duas aplicações semelhantes: uma da BayWa r.e., desenvolvida para um único parque eólico (Langenbrander Höhe), e a ReViSAR da EnBW, para a visualização de projetos de energias renováveis. Não é conhecido se são usadas em processos de participação, nem os autores conhecem outros trabalhos que analisem o efeito e o potencial da visualização em AR nesses processos~\cite[Sec.~2.4]{ar4wind2023}.
+
+%----------------------------------------------------------------------
+\subsection{Calibração de Câmara a partir de Pixels e Coordenadas GPS (Sunkara)}
+\label{sec:sunkara}
+
+\begin{table}[htbp]
+\centering
+\caption{Ficha do trabalho: estimação da posição da câmara a partir de imagens e coordenadas GPS.}
+\label{tab:ficha_sunkara}
+\small
+\begin{tabular}{p{3.2cm}p{9.8cm}}
+\hline
+\textbf{Referência} & Sunkara, R., \textit{Reconstructing the Real World: Estimating Camera Position from Images and GPS Coordinates}~\cite{sunkara2025} (artigo técnico publicado na plataforma Medium, não revisto por pares) \\
+\textbf{Âmbito} & Estimação da posição e da orientação de uma câmara fixa a partir de uma única imagem e de pontos de referência com coordenadas GPS conhecidas \\
+\textbf{Foco neste capítulo} & Método de calibração da câmara e reprojeção de pontos 3D no plano da imagem 2D \\
+\textbf{Dados de entrada} & Coordenadas de píxel $(x, y)$ na imagem e coordenadas GPS (latitude, longitude, altitude) dos pontos correspondentes \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Contexto e Objetivos}
+
+Ao contrário dos trabalhos que corrigem a pose do dispositivo com sensores ou modelos 3D da paisagem, este trabalho trata o problema inverso: partindo apenas de um conjunto de pontos identificados numa imagem estática e das respetivas coordenadas geográficas, pretende-se ``fazer engenharia inversa'' da câmara, isto é, determinar onde está e como está orientada~\cite{sunkara2025}. O objetivo é estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando exclusivamente correspondências entre píxeis e pontos GPS. O trabalho combina calibração de câmara, análise de incerteza e validação com dados reais num único \textit{pipeline}~\cite{sunkara2025}.
+
+\subsubsection{Fundamentos: Modelo de Câmara e Reprojeção}
+\label{sec:fundamentos_reprojecao}
+
+Esta subsecção resume os fundamentos geométricos habitualmente usados neste tipo de calibração (ver, por exemplo,~\cite{hartley2004mvg}); não descreve especificamente a implementação do artigo.
+
+No modelo de câmara \textit{pinhole}, um ponto 3D $\mathbf{X}=(X,Y,Z)^{\top}$, expresso num referencial do mundo, projeta-se no ponto de imagem $\mathbf{x}=(u,v)^{\top}$ de acordo com
+\begin{equation}
+    s\,\tilde{\mathbf{x}} = \mathbf{K}\,[\,\mathbf{R}\mid\mathbf{t}\,]\,\tilde{\mathbf{X}},
+    \qquad
+    \mathbf{K}=
+    \begin{pmatrix}
+        f_x & s_k & c_x\\
+        0 & f_y & c_y\\
+        0 & 0 & 1
+    \end{pmatrix},
+    \label{eq:pinhole}
+\end{equation}
+onde $\tilde{\mathbf{x}}$ e $\tilde{\mathbf{X}}$ são coordenadas homogéneas, $s$ é um fator de escala, $\mathbf{K}$ é a matriz de parâmetros intrínsecos (distâncias focais $f_x$, $f_y$ em píxeis, ponto principal $(c_x,c_y)$ e enviesamento $s_k$) e $[\mathbf{R}\mid\mathbf{t}]$ são os parâmetros extrínsecos, que transformam do referencial do mundo para o da câmara. O centro da câmara no referencial do mundo é $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$. Na prática, o modelo é frequentemente completado por coeficientes de distorção radial e tangencial.
+
+Como as coordenadas GPS (latitude, longitude, altitude) são angulares, a aplicação de \eqref{eq:pinhole} exige primeiro convertê-las para um referencial cartesiano métrico local, por exemplo um referencial \textit{East-North-Up} (ENU) centrado num ponto de origem próximo da cena.
+
+A calibração consiste em encontrar $\mathbf{K}$, $\mathbf{R}$ e $\mathbf{t}$ que minimizem o \textbf{erro de reprojeção}, a distância entre os píxeis observados $\mathbf{x}_i$ e a projeção dos pontos 3D correspondentes $\mathbf{X}_i$:
+\begin{equation}
+    E=\sum_{i=1}^{N}\left\lVert \mathbf{x}_i-\pi\!\left(\mathbf{K},\mathbf{R},\mathbf{t},\mathbf{X}_i\right)\right\rVert^{2},
+    \qquad
+    E_{\mathrm{RMS}}=\sqrt{E/N},
+    \label{eq:reproj}
+\end{equation}
+onde $\pi(\cdot)$ é a função de projeção de \eqref{eq:pinhole} seguida da divisão pela coordenada homogénea. O problema é habitualmente resolvido por uma estimativa inicial linear (por exemplo, \textit{Direct Linear Transform}), seguida de refinamento não linear por mínimos quadrados~\cite{hartley2004mvg}. Com $\mathbf{K}$ desconhecida, são necessários pelo menos seis pontos não coplanares para a solução linear; com $\mathbf{K}$ conhecida, o problema reduz-se à estimação da pose a partir de correspondências 2D--3D (\textit{Perspective-n-Point})~\cite{hartley2004mvg}.
+
+\subsubsection{Método de Calibração}
+
+O artigo parte de uma imagem estática e de um conjunto de pontos de interesse com coordenadas GPS (latitude, longitude, altitude) e coordenadas de píxel $(x, y)$ conhecidas. Com este conjunto de correspondências 2D--3D, aplica o \textit{pipeline} de calibração para estimar a posição e a orientação 3D da câmara~\cite{sunkara2025}. Os parâmetros estimados incluem tanto os intrínsecos como os extrínsecos, a partir de pontos selecionados na imagem e das coordenadas GPS dos mesmos locais~\cite{sunkara2025}.
+% TODO: confirmar no artigo completo (a página da Medium bloqueou o acesso automático):
+%   - biblioteca/função usada na calibração (por exemplo, OpenCV calibrateCamera);
+%   - conversão GPS -> referencial local (ENU ou outro) e escolha da origem;
+%   - número de pontos usados, modelo de distorção e como é calculado o centro da câmara.
+
+\subsubsection{Reprojeção de Pontos 3D na Imagem 2D}
+
+A reprojeção é usada como mecanismo de validação da calibração: com os parâmetros estimados, projetam-se os pontos 3D (os pontos de referência com coordenadas GPS) no plano da imagem e comparam-se com os píxeis originalmente selecionados; a distância entre ambos corresponde ao erro de reprojeção da Equação~\eqref{eq:reproj}. O artigo usa o erro de reprojeção da calibração como métrica quantitativa~\cite{sunkara2025}.
+% TODO: confirmar a visualização usada no artigo (sobreposição de pontos originais e reprojetados) e as unidades do erro.
+
+\subsubsection{Avaliação e Resultados}
+
+O trabalho divide-se em duas partes~\cite{sunkara2025}:
+
+\begin{itemize}
+    \item \textbf{Parte 1: validação controlada.} Aplica o \textit{pipeline} a um exemplo de partida com pontos de coordenadas conhecidas e adiciona ruído gaussiano às coordenadas 2D e 3D, para simular o erro de medição em condições reais e analisar a incerteza das estimativas.
+    \item \textbf{Parte 2: câmaras reais.} Valida o \textit{pipeline} com imagens de \textit{webcams} publicamente disponíveis de três locais da área de Boston. Para cada câmara, constrói um conjunto de dados de pontos de interesse (\textit{POI}) com as coordenadas de imagem e as coordenadas GPS de cada ponto, e repete a calibração para estimar a posição e a orientação 3D com marcos conhecidos e posições GPS aproximadas.
+\end{itemize}
+
+O artigo conclui que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, e apresenta o erro de reprojeção como medida de qualidade; num dos exemplos reporta um erro de reprojeção de calibração de cerca de 18,1~\cite{sunkara2025}.
+% TODO: confirmar as unidades (píxeis) e a que câmara corresponde este valor, e acrescentar os restantes erros reportados por câmara.
+
+\subsubsection{Limitações e Relação com os Restantes Trabalhos}
+
+Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
+
+Em comparação com o \textit{ar4wind} (Secção~\ref{sec:ar4wind}), em que a orientação é corrigida pelo utilizador com apoio de mapas ou de modelos 3D, aqui a pose resulta de uma otimização sobre correspondências 2D--3D medidas, o que fornece uma métrica objetiva do ajuste (o erro de reprojeção), mas exige pontos de referência identificáveis na imagem.
+
+%----------------------------------------------------------------------
+% MODELO PARA ADICIONAR NOVOS TRABALHOS (copiar e preencher):
+%
+% \subsection{Título do Trabalho}
+% \label{sec:novo_trabalho}
+% % Tabela-ficha (referência, âmbito, foco neste capítulo, plataforma)
+% \subsubsection{Contexto e Objetivos}
+% \subsubsection{Localização e Calibração}
+% \subsubsection{Avaliação e Resultados}
+% \subsubsection{Limitações e Trabalho Futuro}
+%
+% Os artigos do consórcio ar4wind que detalham os métodos descritos acima são
+% candidatos naturais a subsecções próprias:
+%   burkard2022gistam (modelos digitais de superfície, método B),
+%   burkard2022icict  (conceção e desenvolvimento da aplicação),
+%   burkard2022eis    (aplicação de AR móvel para turbinas eólicas),
+%   burkard2024anchors (âncoras georreferenciadas, método C).
+%----------------------------------------------------------------------
+
+%======================================================================
+\section{Análise Comparativa}
+\label{sec:sota_comparacao}
+
+A Tabela~\ref{tab:sota_comparativa} compara as abordagens analisadas segundo as dimensões relevantes para a localização e a calibração. Deve ser estendida à medida que forem acrescentados novos trabalhos.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparação das abordagens de localização e calibração GeoAR.}
+\label{tab:sota_comparativa}
+\small
+\begin{tabular}{p{3.0cm}p{2.6cm}p{2.6cm}p{2.4cm}p{2.4cm}}
+\hline
+\textbf{Trabalho / método} & \textbf{Localização} & \textbf{Oclusão} & \textbf{Dados externos} & \textbf{Validação} \\
+\hline
+\textit{ar4wind}~\cite{ar4wind2023}, método A & Manual (mapa e ponto de referência) & Segmentação do céu por cor & Mapas & Campo (séries I e II) \\
+\textit{ar4wind}, método B & Manual (mapa e alinhamento do modelo 3D) & Modelo 3D alinhado & Modelos 3D públicos & Campo (série II e testes de julho de 2022) \\
+\textit{ar4wind}, método C & Automática (âncora) & Modelos 3D associados & Âncoras e modelos 3D & Protótipo \\
+Google VPS~\cite{ar4wind2023} & Automática (imagem) & --- & Dados proprietários & --- \\
+Sunkara~\cite{sunkara2025} & Estimação da pose por correspondências 2D--3D (calibração) & --- & Coordenadas GPS de pontos de referência & Simulação com ruído e \textit{webcams} (Boston) \\
+% \textit{Novo trabalho} & ... & ... & ... & ... \\
+\hline
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Síntese e Lacunas}
+\label{sec:sota_sintese}
+
+Os trabalhos analisados mostram que a combinação da correção manual da posição por mapa com o alinhamento de um modelo 3D da paisagem permite uma localização precisa (cerca de 1 grau de desvio, segundo o \textit{ar4wind}) e uma oclusão automática sem recorrer a serviços proprietários de posicionamento visual. Os pontos que permanecem em aberto são:
+
+\begin{itemize}
+    \item a dependência de modelos 3D públicos de qualidade e atualizados, nem sempre disponíveis, e de infraestrutura para os distribuir;
+    \item a baixa resolução dos modelos em ambientes com vegetação ou construção densas, que pode comprometer a oclusão;
+    \item o facto de a calibração manual não ser totalmente autoexplicativa e exigir formação ou acompanhamento;
+    \item a validação limitada das abordagens automáticas baseadas em âncoras, restritas a locais pré-registados e com robustez sazonal por estudar;
+    \item a dependência, nas abordagens de calibração por correspondências 2D--3D, da qualidade da seleção manual de píxeis e da precisão das coordenadas dos pontos de referência;
+    \item a natureza maioritariamente qualitativa da avaliação em campo, com amostras reduzidas e selecionadas.
+\end{itemize}
+
+Estas lacunas motivam abordagens que reduzam o esforço de calibração do utilizador e dependam menos de dados externos, o que enquadra o trabalho desenvolvido nesta dissertação.

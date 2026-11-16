@@ -21,10 +21,10 @@ import numpy as np
 # FILES AND INPUT POINTS
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
-PARAMS_FILE = BASE_DIR / "camera_boston_best2.npz"
-IMAGE_FILE = BASE_DIR / "Boston_Harbor.png"
-OUTPUT_IMAGE = BASE_DIR / "reprojected_points_best.png"
-OUTPUT_CSV = BASE_DIR / "reprojected_points_best.csv"
+PARAMS_FILE = BASE_DIR / "Boston_Harbor/best_camera_boston.npz"
+IMAGE_FILE = BASE_DIR / "Boston_Harbor/Boston_Harbor.png"
+OUTPUT_IMAGE = BASE_DIR / "Boston_Harbor/best_reprojected_points.png"
+OUTPUT_CSV = BASE_DIR / "Boston_Harbor/best_reprojected_points.csv"
 
 # Points to project, expressed as WGS84 latitude, longitude and altitude (metres).
 # These six points are the calibration POIs from script_calibracao.py, useful for
