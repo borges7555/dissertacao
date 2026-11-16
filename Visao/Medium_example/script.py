@@ -18,7 +18,7 @@ IMAGE_PATH = BASE_DIR / "Boston_Harbor.png"
 # Output file with the best camera parameters found. Same format as the .npz written by
 # chessboard7_3.py (keys: intrinsics, distortion, image_size), so it can be read by
 # chessboard7_4.py (set PARAMS_FILE to this file).
-OUTPUT_FILE = BASE_DIR / "camera_boston.npz"
+OUTPUT_FILE = BASE_DIR / "camera_boston_best2.npz"
 
 # Local ENU origin (WGS84 latitude, longitude, altitude in metres).
 origin_lat = 42.35256
@@ -41,7 +41,7 @@ VFOV_MAX_DEG = 120.0
 VFOV_STEP_DEG = 5.0
 # Set a value to skip the automatic LOO search and use it as the initial VFOV.
 # Keep None to select the initial VFOV automatically.
-MANUAL_VFOV_DEG = 80.94
+MANUAL_VFOV_DEG = None #80.94
 
 MAX_OPTIMIZER_EVALUATIONS = 1200
 OPTIMIZER_TOLERANCE = 1e-8
@@ -466,16 +466,26 @@ def main():
     print(f"  Longitude: {final['camera_lon']:.8f} deg")
     print(f"  Altitude:  {final['camera_alt_ellipsoid_m']:.3f} m (ellipsoid)")
 
-    # Save the best parameters (final fit with all POIs and the best VFOV).
-    # Same layout as chessboard7_3.py: intrinsics 3x3, distortion 1x5 (k1, k2, p1, p2, k3),
-    # image_size = (width, height) of the image used here.
+    # Save intrinsics, distortion, image size AND extrinsics / ENU origin.
+    # Intrinsics alone are not enough to project world GPS points into the image:
+    # rvec/tvec and the exact ENU origin used during calibration are also required.
     np.savez(
         OUTPUT_FILE,
         intrinsics=np.asarray(final["camera_matrix"], dtype=np.float64),
         distortion=np.asarray(final["distortion"], dtype=np.float64).reshape(1, 5),
-        image_size=np.array([image_width, image_height]),
+        image_size=np.array([image_width, image_height], dtype=np.int32),
+        rvec=np.asarray(final["rvec"], dtype=np.float64).reshape(3, 1),
+        tvec=np.asarray(final["tvec"], dtype=np.float64).reshape(3, 1),
+        origin_lat=np.array(origin_lat, dtype=np.float64),
+        origin_lon=np.array(origin_lon, dtype=np.float64),
+        origin_alt=np.array(origin_alt, dtype=np.float64),
+        camera_center_enu=np.asarray(final["camera_enu"], dtype=np.float64).reshape(3),
+        vfov_initial_deg=np.array(best_vfov, dtype=np.float64),
+        vfov_final_deg=np.array(final["vfov_final_deg"], dtype=np.float64),
+        focal_length_px=np.array(final["focal_px"], dtype=np.float64),
     )
     print(f"\nCamera parameters saved to {OUTPUT_FILE}")
+    print("Saved fields: intrinsics, distortion, image_size, rvec, tvec, ENU origin, camera centre and VFOV.")
 
 if __name__ == "__main__":
     main()
