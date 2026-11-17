@@ -154,12 +154,12 @@ Além do VPS da Google (Secção~\ref{sec:sota_familias}), o relatório refere a
 
 \subsubsection{Contexto e Objetivos}
 
-Ao contrário dos trabalhos que corrigem a pose do dispositivo com sensores ou modelos 3D da paisagem, este trabalho trata o problema inverso: partindo apenas de um conjunto de pontos identificados numa imagem estática e das respetivas coordenadas geográficas, pretende-se ``fazer engenharia inversa'' da câmara, isto é, determinar onde está e como está orientada~\cite{sunkara2025}. O objetivo é estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando exclusivamente correspondências entre píxeis e pontos GPS. O trabalho combina calibração de câmara, análise de incerteza e validação com dados reais num único \textit{pipeline}~\cite{sunkara2025}.
+Ao contrário dos trabalhos que corrigem a pose do dispositivo com sensores ou modelos 3D da paisagem, este trabalho trata o problema inverso: partindo apenas de um conjunto de pontos identificados numa imagem estática e das respetivas coordenadas geográficas, pretende-se fazer \textit{reverse engineering} da câmara, isto é, determinar onde está e como está orientada~\cite{sunkara2025}. O objetivo é estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando exclusivamente correspondências entre píxeis e pontos GPS. O trabalho combina calibração de câmara, análise de incerteza e validação com dados reais num único \textit{pipeline}~\cite{sunkara2025}.
 
 \subsubsection{Fundamentos: Modelo de Câmara e Reprojeção}
 \label{sec:fundamentos_reprojecao}
 
-Esta subsecção resume os fundamentos geométricos habitualmente usados neste tipo de calibração (ver, por exemplo,~\cite{hartley2004mvg}); não descreve especificamente a implementação do artigo.
+Esta subsecção resume os fundamentos geométricos habitualmente usados neste tipo de calibração; não descreve especificamente a implementação do artigo.
 
 No modelo de câmara \textit{pinhole}, um ponto 3D $\mathbf{X}=(X,Y,Z)^{\top}$, expresso num referencial do mundo, projeta-se no ponto de imagem $\mathbf{x}=(u,v)^{\top}$ de acordo com
 \begin{equation}
@@ -173,7 +173,7 @@ No modelo de câmara \textit{pinhole}, um ponto 3D $\mathbf{X}=(X,Y,Z)^{\top}$, 
     \end{pmatrix},
     \label{eq:pinhole}
 \end{equation}
-onde $\tilde{\mathbf{x}}$ e $\tilde{\mathbf{X}}$ são coordenadas homogéneas, $s$ é um fator de escala, $\mathbf{K}$ é a matriz de parâmetros intrínsecos (distâncias focais $f_x$, $f_y$ em píxeis, ponto principal $(c_x,c_y)$ e enviesamento $s_k$) e $[\mathbf{R}\mid\mathbf{t}]$ são os parâmetros extrínsecos, que transformam do referencial do mundo para o da câmara. O centro da câmara no referencial do mundo é $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$. Na prática, o modelo é frequentemente completado por coeficientes de distorção radial e tangencial.
+onde $\tilde{\mathbf{x}}$ e $\tilde{\mathbf{X}}$ são coordenadas homogéneas, $s$ é um fator de escala, $\mathbf{K}$ é a matriz de parâmetros intrínsecos (distâncias focais $f_x$, $f_y$ em píxeis, ponto principal $(c_x,c_y)$ e enviesamento $s_k$) e $[\mathbf{R}\mid\mathbf{t}]$ são os parâmetros extrínsecos, que transformam do referencial do mundo para o da câmara. O centro da câmara no referencial do mundo é $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$. Na prática, o modelo é frequentemente completado por coeficientes de distorção radial e tangencial (não usados no artigo analisado).
 
 Como as coordenadas GPS (latitude, longitude, altitude) são angulares, a aplicação de \eqref{eq:pinhole} exige primeiro convertê-las para um referencial cartesiano métrico local, por exemplo um referencial \textit{East-North-Up} (ENU) centrado num ponto de origem próximo da cena.
 
@@ -187,17 +187,49 @@ A calibração consiste em encontrar $\mathbf{K}$, $\mathbf{R}$ e $\mathbf{t}$ q
 onde $\pi(\cdot)$ é a função de projeção de \eqref{eq:pinhole} seguida da divisão pela coordenada homogénea. O problema é habitualmente resolvido por uma estimativa inicial linear (por exemplo, \textit{Direct Linear Transform}), seguida de refinamento não linear por mínimos quadrados~\cite{hartley2004mvg}. Com $\mathbf{K}$ desconhecida, são necessários pelo menos seis pontos não coplanares para a solução linear; com $\mathbf{K}$ conhecida, o problema reduz-se à estimação da pose a partir de correspondências 2D--3D (\textit{Perspective-n-Point})~\cite{hartley2004mvg}.
 
 \subsubsection{Método de Calibração}
+\label{sec:sunkara_metodo}
 
-O artigo parte de uma imagem estática e de um conjunto de pontos de interesse com coordenadas GPS (latitude, longitude, altitude) e coordenadas de píxel $(x, y)$ conhecidas. Com este conjunto de correspondências 2D--3D, aplica o \textit{pipeline} de calibração para estimar a posição e a orientação 3D da câmara~\cite{sunkara2025}. Os parâmetros estimados incluem tanto os intrínsecos como os extrínsecos, a partir de pontos selecionados na imagem e das coordenadas GPS dos mesmos locais~\cite{sunkara2025}.
-% TODO: confirmar no artigo completo (a página da Medium bloqueou o acesso automático):
-%   - biblioteca/função usada na calibração (por exemplo, OpenCV calibrateCamera);
-%   - conversão GPS -> referencial local (ENU ou outro) e escolha da origem;
-%   - número de pontos usados, modelo de distorção e como é calculado o centro da câmara.
+O método parte de uma imagem estática e de um conjunto de pontos de interesse com coordenadas de píxel $(x, y)$ e coordenadas GPS (latitude, longitude, altitude) conhecidas. Com estas correspondências 2D--3D, o \textit{pipeline} estima os parâmetros intrínsecos e extrínsecos da câmara e, a partir deles, a sua posição e orientação 3D~\cite{sunkara2025}. O exemplo de partida usa um conjunto simples de seis marcos conhecidos, ao qual é depois acrescentado ruído para simular o erro de medição~\cite{sunkara2025}.
+
+\paragraph{Conversão GPS para um referencial local.} As coordenadas GPS reais (latitude, longitude, altitude) são convertidas para coordenadas \textit{East-North-Up} (ENU), usando uma origem local~\cite{sunkara2025}. O referencial ENU é cartesiano e métrico, o que permite tratar os pontos como pontos 3D no modelo de câmara da Equação~\eqref{eq:pinhole}.
+
+\paragraph{Estimativa inicial dos parâmetros intrínsecos.} Antes da calibração, é fornecida uma estimativa inicial da matriz intrínseca com base no modelo \textit{pinhole}. A distância focal em píxeis é calculada a partir de uma estimativa do campo de visão vertical $\mathrm{vFOV}$ e da altura $h$ da imagem~\cite{sunkara2025}:
+\begin{equation}
+    f_{\mathrm{est}}=\frac{h/2}{\tan\!\left(\mathrm{vFOV}/2\right)},
+    \qquad
+    \mathbf{K}_0=
+    \begin{pmatrix}
+        f_{\mathrm{est}} & 0 & w/2\\
+        0 & f_{\mathrm{est}} & h/2\\
+        0 & 0 & 1
+    \end{pmatrix},
+    \label{eq:k0}
+\end{equation}
+onde $w$ é a largura da imagem em píxeis. O artigo usa $\mathrm{vFOV}=80{,}94^{\circ}$, valor que não justifica nem refere de onde provém~\cite{sunkara2025}. Esta inicialização assume píxeis quadrados ($f_x=f_y$), enviesamento nulo e ponto principal no centro da imagem, o que corresponde à forma de $\mathbf{K}$ na Equação~\eqref{eq:pinhole} com $s_k=0$. O modelo de câmara usado não inclui coeficientes de distorção, tratando-se, portanto, de um modelo \textit{pinhole} ideal~\cite{sunkara2025}.
+
+\paragraph{Estimação dos parâmetros.} A calibração é feita com a função \texttt{cv2.calibrateCamera} do OpenCV, que, partindo de $\mathbf{K}_0$ (Equação~\eqref{eq:k0}), estima a matriz de rotação $\mathbf{R}$ e o vetor de translação $\mathbf{t}$ (e refina os parâmetros intrínsecos) a partir das correspondências~\cite{sunkara2025}. O artigo não refere a utilização de nenhuma \textit{flag} de calibração, como a \texttt{CALIB\_USE\_INTRINSIC\_GUESS}, que na documentação do OpenCV serve para indicar que a matriz intrínseca fornecida deve ser usada como estimativa inicial. O artigo trabalha com dois referenciais: o referencial do mundo (ENU) e o referencial da câmara, em que, segundo a convenção do OpenCV, $X$ aponta para a direita, $Y$ para baixo e $Z$ para a frente. A transformação entre ambos é
+\begin{equation}
+    \mathbf{P}_c=\mathbf{R}\,\mathbf{P}_{\mathrm{ENU}}+\mathbf{t},
+    \label{eq:cam_world}
+\end{equation}
+onde $\mathbf{P}_c$ são as coordenadas do ponto no referencial da câmara e $\mathbf{P}_{\mathrm{ENU}}$ as coordenadas do mesmo ponto no referencial do mundo~\cite{sunkara2025}.
+
+\paragraph{Cálculo do centro da câmara.} Conhecidos $\mathbf{R}$ e $\mathbf{t}$, a posição da câmara no referencial do mundo obtém-se por uma operação simples. O centro da câmara é a origem do referencial da câmara, isto é, o ponto $\mathbf{C}_{\mathrm{ENU}}$ para o qual $\mathbf{P}_c=\mathbf{0}$. Substituindo em \eqref{eq:cam_world}:
+\begin{equation}
+    \mathbf{0}=\mathbf{R}\,\mathbf{C}_{\mathrm{ENU}}+\mathbf{t}
+    \;\Rightarrow\;
+    \mathbf{C}_{\mathrm{ENU}}=-\mathbf{R}^{-1}\mathbf{t}.
+\end{equation}
+Como $\mathbf{R}$ é uma matriz ortogonal, $\mathbf{R}^{-1}=\mathbf{R}^{\top}$, pelo que
+\begin{equation}
+    \mathbf{C}_{\mathrm{ENU}}=-\mathbf{R}^{\top}\mathbf{t}.
+    \label{eq:cam_center}
+\end{equation}
+Esta é a expressão usada para recuperar a posição da câmara no referencial do mundo~\cite{sunkara2025}, coincidente com a relação $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$ apresentada nos fundamentos (Secção~\ref{sec:fundamentos_reprojecao}).
 
 \subsubsection{Reprojeção de Pontos 3D na Imagem 2D}
 
 A reprojeção é usada como mecanismo de validação da calibração: com os parâmetros estimados, projetam-se os pontos 3D (os pontos de referência com coordenadas GPS) no plano da imagem e comparam-se com os píxeis originalmente selecionados; a distância entre ambos corresponde ao erro de reprojeção da Equação~\eqref{eq:reproj}. O artigo usa o erro de reprojeção da calibração como métrica quantitativa~\cite{sunkara2025}.
-% TODO: confirmar a visualização usada no artigo (sobreposição de pontos originais e reprojetados) e as unidades do erro.
 
 \subsubsection{Avaliação e Resultados}
 
@@ -208,72 +240,11 @@ O trabalho divide-se em duas partes~\cite{sunkara2025}:
     \item \textbf{Parte 2: câmaras reais.} Valida o \textit{pipeline} com imagens de \textit{webcams} publicamente disponíveis de três locais da área de Boston. Para cada câmara, constrói um conjunto de dados de pontos de interesse (\textit{POI}) com as coordenadas de imagem e as coordenadas GPS de cada ponto, e repete a calibração para estimar a posição e a orientação 3D com marcos conhecidos e posições GPS aproximadas.
 \end{itemize}
 
-O artigo conclui que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, e apresenta o erro de reprojeção como medida de qualidade; num dos exemplos reporta um erro de reprojeção de calibração de cerca de 18,1~\cite{sunkara2025}.
+O artigo conclui que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, e apresenta o erro de reprojeção como medida de qualidade.
 % TODO: confirmar as unidades (píxeis) e a que câmara corresponde este valor, e acrescentar os restantes erros reportados por câmara.
 
 \subsubsection{Limitações e Relação com os Restantes Trabalhos}
 
-Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
+Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). O modelo não inclui coeficientes de distorção, pelo que a distorção das lentes, quando existe, não é modelada e pode contribuir para o erro de reprojeção, e o valor do campo de visão vertical usado na inicialização não é justificado. Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
 
 Em comparação com o \textit{ar4wind} (Secção~\ref{sec:ar4wind}), em que a orientação é corrigida pelo utilizador com apoio de mapas ou de modelos 3D, aqui a pose resulta de uma otimização sobre correspondências 2D--3D medidas, o que fornece uma métrica objetiva do ajuste (o erro de reprojeção), mas exige pontos de referência identificáveis na imagem.
-
-%----------------------------------------------------------------------
-% MODELO PARA ADICIONAR NOVOS TRABALHOS (copiar e preencher):
-%
-% \subsection{Título do Trabalho}
-% \label{sec:novo_trabalho}
-% % Tabela-ficha (referência, âmbito, foco neste capítulo, plataforma)
-% \subsubsection{Contexto e Objetivos}
-% \subsubsection{Localização e Calibração}
-% \subsubsection{Avaliação e Resultados}
-% \subsubsection{Limitações e Trabalho Futuro}
-%
-% Os artigos do consórcio ar4wind que detalham os métodos descritos acima são
-% candidatos naturais a subsecções próprias:
-%   burkard2022gistam (modelos digitais de superfície, método B),
-%   burkard2022icict  (conceção e desenvolvimento da aplicação),
-%   burkard2022eis    (aplicação de AR móvel para turbinas eólicas),
-%   burkard2024anchors (âncoras georreferenciadas, método C).
-%----------------------------------------------------------------------
-
-%======================================================================
-\section{Análise Comparativa}
-\label{sec:sota_comparacao}
-
-A Tabela~\ref{tab:sota_comparativa} compara as abordagens analisadas segundo as dimensões relevantes para a localização e a calibração. Deve ser estendida à medida que forem acrescentados novos trabalhos.
-
-\begin{table}[htbp]
-\centering
-\caption{Comparação das abordagens de localização e calibração GeoAR.}
-\label{tab:sota_comparativa}
-\small
-\begin{tabular}{p{3.0cm}p{2.6cm}p{2.6cm}p{2.4cm}p{2.4cm}}
-\hline
-\textbf{Trabalho / método} & \textbf{Localização} & \textbf{Oclusão} & \textbf{Dados externos} & \textbf{Validação} \\
-\hline
-\textit{ar4wind}~\cite{ar4wind2023}, método A & Manual (mapa e ponto de referência) & Segmentação do céu por cor & Mapas & Campo (séries I e II) \\
-\textit{ar4wind}, método B & Manual (mapa e alinhamento do modelo 3D) & Modelo 3D alinhado & Modelos 3D públicos & Campo (série II e testes de julho de 2022) \\
-\textit{ar4wind}, método C & Automática (âncora) & Modelos 3D associados & Âncoras e modelos 3D & Protótipo \\
-Google VPS~\cite{ar4wind2023} & Automática (imagem) & --- & Dados proprietários & --- \\
-Sunkara~\cite{sunkara2025} & Estimação da pose por correspondências 2D--3D (calibração) & --- & Coordenadas GPS de pontos de referência & Simulação com ruído e \textit{webcams} (Boston) \\
-% \textit{Novo trabalho} & ... & ... & ... & ... \\
-\hline
-\end{tabular}
-\end{table}
-
-%======================================================================
-\section{Síntese e Lacunas}
-\label{sec:sota_sintese}
-
-Os trabalhos analisados mostram que a combinação da correção manual da posição por mapa com o alinhamento de um modelo 3D da paisagem permite uma localização precisa (cerca de 1 grau de desvio, segundo o \textit{ar4wind}) e uma oclusão automática sem recorrer a serviços proprietários de posicionamento visual. Os pontos que permanecem em aberto são:
-
-\begin{itemize}
-    \item a dependência de modelos 3D públicos de qualidade e atualizados, nem sempre disponíveis, e de infraestrutura para os distribuir;
-    \item a baixa resolução dos modelos em ambientes com vegetação ou construção densas, que pode comprometer a oclusão;
-    \item o facto de a calibração manual não ser totalmente autoexplicativa e exigir formação ou acompanhamento;
-    \item a validação limitada das abordagens automáticas baseadas em âncoras, restritas a locais pré-registados e com robustez sazonal por estudar;
-    \item a dependência, nas abordagens de calibração por correspondências 2D--3D, da qualidade da seleção manual de píxeis e da precisão das coordenadas dos pontos de referência;
-    \item a natureza maioritariamente qualitativa da avaliação em campo, com amostras reduzidas e selecionadas.
-\end{itemize}
-
-Estas lacunas motivam abordagens que reduzam o esforço de calibração do utilizador e dependam menos de dados externos, o que enquadra o trabalho desenvolvido nesta dissertação.
