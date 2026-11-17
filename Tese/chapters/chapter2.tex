@@ -205,9 +205,9 @@ O método parte de uma imagem estática e de um conjunto de pontos de interesse 
     \end{pmatrix},
     \label{eq:k0}
 \end{equation}
-onde $w$ é a largura da imagem em píxeis. O artigo usa $\mathrm{vFOV}=80{,}94^{\circ}$, valor que não justifica nem refere de onde provém~\cite{sunkara2025}. Esta inicialização assume píxeis quadrados ($f_x=f_y$), enviesamento nulo e ponto principal no centro da imagem, o que corresponde à forma de $\mathbf{K}$ na Equação~\eqref{eq:pinhole} com $s_k=0$. O modelo de câmara usado não inclui coeficientes de distorção, tratando-se, portanto, de um modelo \textit{pinhole} ideal~\cite{sunkara2025}.
+onde $w$ é a largura da imagem em píxeis. O artigo fixa manualmente esta estimativa (por exemplo, $\mathrm{vFOV}=80{,}94^{\circ}$ no primeiro local da parte~2), sem justificar nem referir de onde provém o valor~\cite{sunkara2025}; as distâncias focais iniciais dos três locais reais correspondem a campos de visão verticais de cerca de $80{,}9^{\circ}$, $63{,}6^{\circ}$ e $30{,}0^{\circ}$ (valores calculados a partir da Equação~\eqref{eq:k0}). Esta inicialização assume píxeis quadrados ($f_x=f_y$), enviesamento nulo e ponto principal no centro da imagem, o que corresponde à forma de $\mathbf{K}$ na Equação~\eqref{eq:pinhole} com $s_k=0$. O modelo de câmara usado não inclui coeficientes de distorção, tratando-se, portanto, de um modelo \textit{pinhole} ideal~\cite{sunkara2025}.
 
-\paragraph{Estimação dos parâmetros.} A calibração é feita com a função \texttt{cv2.calibrateCamera} do OpenCV, que, partindo de $\mathbf{K}_0$ (Equação~\eqref{eq:k0}), estima a matriz de rotação $\mathbf{R}$ e o vetor de translação $\mathbf{t}$ (e refina os parâmetros intrínsecos) a partir das correspondências~\cite{sunkara2025}. O artigo não refere a utilização de nenhuma \textit{flag} de calibração, como a \texttt{CALIB\_USE\_INTRINSIC\_GUESS}, que na documentação do OpenCV serve para indicar que a matriz intrínseca fornecida deve ser usada como estimativa inicial. O artigo trabalha com dois referenciais: o referencial do mundo (ENU) e o referencial da câmara, em que, segundo a convenção do OpenCV, $X$ aponta para a direita, $Y$ para baixo e $Z$ para a frente. A transformação entre ambos é
+\paragraph{Estimação dos parâmetros.} A calibração é feita com a função \texttt{cv2.calibrateCamera} do OpenCV, que, partindo de $\mathbf{K}_0$ (Equação~\eqref{eq:k0}), estima a matriz de rotação $\mathbf{R}$ e o vetor de translação $\mathbf{t}$ (e refina a distância focal, como se verifica nos resultados da Secção~\ref{sec:sunkara_resultados}) a partir das correspondências~\cite{sunkara2025}. O artigo não refere a utilização de nenhuma \textit{flag} de calibração, como a \texttt{CALIB\_USE\_INTRINSIC\_GUESS}, que na documentação do OpenCV serve para indicar que a matriz intrínseca fornecida deve ser usada como estimativa inicial. O artigo trabalha com dois referenciais: o referencial do mundo (ENU) e o referencial da câmara, em que, segundo a convenção do OpenCV, $X$ aponta para a direita, $Y$ para baixo e $Z$ para a frente. A transformação entre ambos é
 \begin{equation}
     \mathbf{P}_c=\mathbf{R}\,\mathbf{P}_{\mathrm{ENU}}+\mathbf{t},
     \label{eq:cam_world}
@@ -232,19 +232,88 @@ Esta é a expressão usada para recuperar a posição da câmara no referencial 
 A reprojeção é usada como mecanismo de validação da calibração: com os parâmetros estimados, projetam-se os pontos 3D (os pontos de referência com coordenadas GPS) no plano da imagem e comparam-se com os píxeis originalmente selecionados; a distância entre ambos corresponde ao erro de reprojeção da Equação~\eqref{eq:reproj}. O artigo usa o erro de reprojeção da calibração como métrica quantitativa~\cite{sunkara2025}.
 
 \subsubsection{Avaliação e Resultados}
+\label{sec:sunkara_resultados}
 
-O trabalho divide-se em duas partes~\cite{sunkara2025}:
+O trabalho divide-se em duas partes, que vão de um conjunto de dados controlado a câmaras reais~\cite{sunkara2025}.
+
+\paragraph{Parte 1: análise \textit{leave-one-out}.} Parte de um conjunto de seis marcos com correspondências 2D--3D conhecidas. A calibração é repetida sete vezes: uma com todos os pontos e seis em que se retira um ponto de cada vez. A Tabela~\ref{tab:sunkara_loo} apresenta, para cada execução, o erro de reprojeção, a distância focal estimada ($f_x=f_y$), os campos de visão horizontal (HFOV) e vertical (VFOV) e o vetor de translação $\mathbf{t}$ no referencial ENU, e a Figura~\ref{fig:sunkara_loo} mostra os centros da câmara recuperados em cada execução~\cite{sunkara2025}.
+
+\begin{table}[htbp]
+\centering
+\caption{Resultados da análise \textit{leave-one-out} (parte 1)~\cite{sunkara2025}.}
+\label{tab:sunkara_loo}
+\small
+\begin{tabular}{cccccc}
+\hline
+\textbf{Execução} & \textbf{Ponto retirado} & \textbf{Erro (px)} & \textbf{$f_x,f_y$ (px)} & \textbf{HFOV / VFOV ($^{\circ}$)} & \textbf{$\mathbf{t}$ (m) [E, N, U]} \\
+\hline
+0 & nenhum & 39,40 & 1327,6 & 88,6 / 72,4 & [$-6{,}90$; $1{,}70$; $32{,}90$] \\
+1 & 0 & 40,39 & 1256,3 & 91,8 / 75,5 & [$-9{,}75$; $2{,}70$; $23{,}49$] \\
+2 & 1 & 41,92 & 1223,6 & 93,3 / 76,9 & [$-11{,}53$; $-2{,}04$; $23{,}24$] \\
+3 & 2 & 21,50 & 1479,5 & 82,4 / 66,6 & [$21{,}80$; $-2{,}38$; $49{,}36$] \\
+4 & 3 & 31,04 & 1450,3 & 83,6 / 67,7 & [$-25{,}26$; $15{,}72$; $57{,}90$] \\
+5 & 4 & 28,87 & 1933,8 & 67,7 / 53,4 & [$-29{,}15$; $18{,}51$; $98{,}27$] \\
+6 & 5 & 9,65 & 1210,2 & 93,9 / 77,5 & [$-1{,}96$; $-2{,}77$; $11{,}00$] \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+% TODO: ajustar o caminho conforme a estrutura de pastas do template.
+\includegraphics[width=0.7\textwidth]{figs/leave_one_out_camera_centers.png}
+\caption{Centros da câmara recuperados (referencial ENU) nas execuções da análise \textit{leave-one-out}~\cite{sunkara2025}.}
+\label{fig:sunkara_loo}
+\end{figure}
+
+Os resultados mostram que as estimativas são muito sensíveis a cada ponto individual. Com todos os pontos, o erro de reprojeção é de 39,40~px; ao retirar um ponto, varia entre 9,65~px (ponto 5) e 41,92~px (ponto 1). A distância focal estimada varia entre 1210,2 e 1933,8~px (HFOV entre $93{,}9^{\circ}$ e $67{,}7^{\circ}$), a componente vertical de $\mathbf{t}$ entre 11,00 e 98,27~m, e os centros da câmara recuperados dispersam-se por dezenas de metros (Figura~\ref{fig:sunkara_loo}). Como cada execução usa apenas cinco ou seis correspondências, o problema fica pouco condicionado. Uma redução do erro ao retirar um ponto (por exemplo, o ponto 5) pode indicar que esse ponto é inconsistente com os restantes, mas também resulta possivelmente por haver menos restrições a satisfazer, pelo que, por si só, não garante uma pose mais correta.
+
+\paragraph{Parte 2: câmaras reais.} Valida o \textit{pipeline} com imagens de \textit{webcams} publicamente disponíveis de três locais da área de Boston. Para cada câmara, constrói um conjunto de dados de pontos de interesse (\textit{POI}) com as coordenadas de imagem e as coordenadas GPS de cada ponto, e repete a calibração com marcos conhecidos e posições GPS aproximadas~\cite{sunkara2025}. As Tabelas~\ref{tab:sunkara_reais_intr} e~\ref{tab:sunkara_reais_pose} resumem os resultados.
+
+\begin{table}[htbp]
+\centering
+\caption{Distância focal, erro de reprojeção e campos de visão nos três locais reais (parte 2)~\cite{sunkara2025}. As dimensões da imagem foram deduzidas da posição do ponto principal.}
+\label{tab:sunkara_reais_intr}
+\small
+\begin{tabular}{ccccccc}
+\hline
+\textbf{Local} & \textbf{Imagem (px)} & \textbf{$f$ inicial (px)} & \textbf{$f$ estimada (px)} & \textbf{Erro (px)} & \textbf{HFOV ($^{\circ}$)} & \textbf{VFOV ($^{\circ}$)} \\
+\hline
+1 & $2940\times1730$ & 1013,86 & 1021,30 & 18,11 & 110,42 & 80,53 \\
+2 & $1920\times1080$ & 871,10 & 998,96 & 50,83 & 87,72 & 56,79 \\
+3 & $1920\times1080$ & 2015,31 & 3236,62 & 5,61 & 46,62 & 26,71 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Pose estimada nos três locais reais, no referencial ENU (parte 2). O centro da câmara $\mathbf{C}$ do local~1 é o reportado pelo artigo~\cite{sunkara2025}; os dos locais 2 e 3 foram calculados a partir de $\mathbf{R}$ e $\mathbf{t}$ com a Equação~\eqref{eq:cam_center}.}
+\label{tab:sunkara_reais_pose}
+\small
+\begin{tabular}{ccc}
+\hline
+\textbf{Local} & \textbf{$\mathbf{t}$ (m) [E, N, U]} & \textbf{$\mathbf{C}$ (m) [E, N, U]} \\
+\hline
+1 & [$-24{,}55$; $15{,}70$; $50{,}34$] & [$57{,}62$; $-0{,}33$; $7{,}94$] \\
+2 & [$31{,}67$; $-35{,}04$; $23{,}08$] & [$5{,}87$; $-39{,}17$; $-34{,}56$] \\
+3 & [$243{,}13$; $219{,}27$; $819{,}29$] & [$-588{,}39$; $521{,}17$; $400{,}76$] \\
+\hline
+\end{tabular}
+\end{table}
+
+Observa-se o seguinte:
 
 \begin{itemize}
-    \item \textbf{Parte 1: validação controlada.} Aplica o \textit{pipeline} a um exemplo de partida com pontos de coordenadas conhecidas e adiciona ruído gaussiano às coordenadas 2D e 3D, para simular o erro de medição em condições reais e analisar a incerteza das estimativas.
-    \item \textbf{Parte 2: câmaras reais.} Valida o \textit{pipeline} com imagens de \textit{webcams} publicamente disponíveis de três locais da área de Boston. Para cada câmara, constrói um conjunto de dados de pontos de interesse (\textit{POI}) com as coordenadas de imagem e as coordenadas GPS de cada ponto, e repete a calibração para estimar a posição e a orientação 3D com marcos conhecidos e posições GPS aproximadas.
+    \item O erro de reprojeção varia entre 5,61~px (local~3) e 50,83~px (local~2), sendo de 18,11~px no local~1.
+    \item Em todos os locais, apenas a distância focal é efetivamente ajustada: o ponto principal e a igualdade $f_x=f_y$ mantêm-se, e os coeficientes de distorção são nulos. A variação da distância focal face à estimativa inicial é pequena no local~1 (cerca de 0,7\%), moderada no local~2 (cerca de 15\%) e grande no local~3 (cerca de 61\%).
+    \item O local~3 tem o menor erro, o maior $f$ (3236,62~px) e o menor campo de visão (HFOV de $46{,}62^{\circ}$), com a câmara a cerca de 880~m da origem do referencial ENU, ao contrário dos locais 1 e 2, onde esta distância é de aproximadamente 58~m e 53~m.
+    \item Para o local~2, o artigo apresenta também os valores de $Z$ no referencial da câmara dos pontos usados (entre cerca de 58 e 152~m), todos positivos, isto é, à frente da câmara.
+    \item No local~1, o centro da câmara calculado com a Equação~\eqref{eq:cam_center} a partir de $\mathbf{R}$ e $\mathbf{t}$ coincide com o reportado pelo artigo.
 \end{itemize}
 
-O artigo conclui que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, e apresenta o erro de reprojeção como medida de qualidade.
-% TODO: confirmar as unidades (píxeis) e a que câmara corresponde este valor, e acrescentar os restantes erros reportados por câmara.
+O artigo conclui que o \textit{pipeline} combina calibração de câmara, análise de incerteza e validação com dados reais, e que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, passando de um conjunto de dados controlado para \textit{webcams} reais~\cite{sunkara2025}.
 
 \subsubsection{Limitações e Relação com os Restantes Trabalhos}
 
-Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). O modelo não inclui coeficientes de distorção, pelo que a distorção das lentes, quando existe, não é modelada e pode contribuir para o erro de reprojeção, e o valor do campo de visão vertical usado na inicialização não é justificado. Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
-
-Em comparação com o \textit{ar4wind} (Secção~\ref{sec:ar4wind}), em que a orientação é corrigida pelo utilizador com apoio de mapas ou de modelos 3D, aqui a pose resulta de uma otimização sobre correspondências 2D--3D medidas, o que fornece uma métrica objetiva do ajuste (o erro de reprojeção), mas exige pontos de referência identificáveis na imagem.
+Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). A análise \textit{leave-one-out} (Tabela~\ref{tab:sunkara_loo}) confirma esta sensibilidade: retirar um único ponto de seis altera a distância focal estimada entre 1210 e 1934~px. O modelo não inclui coeficientes de distorção, pelo que a distorção das lentes, quando existe, não é modelada e pode contribuir para o erro de reprojeção, e os valores do campo de visão vertical usados na inicialização não são justificados. Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
