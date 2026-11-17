@@ -21,33 +21,31 @@ import numpy as np
 # FILES AND INPUT POINTS
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
-PARAMS_FILE = BASE_DIR / "Boston_Harbor/best_camera_boston.npz"
-IMAGE_FILE = BASE_DIR / "Boston_Harbor/Boston_Harbor.png"
-OUTPUT_IMAGE = BASE_DIR / "Boston_Harbor/best_reprojected_points.png"
-OUTPUT_CSV = BASE_DIR / "Boston_Harbor/best_reprojected_points.csv"
+PARAMS_FILE = BASE_DIR / "Biblioteca/camera_faraway.npz"
+IMAGE_FILE = BASE_DIR / "Biblioteca/faraway.jpg"
+OUTPUT_IMAGE = BASE_DIR / "Biblioteca/faraway_reprojected_points.png"
+OUTPUT_CSV = BASE_DIR / "Biblioteca/faraway_reprojected_points.csv"
 
 # Points to project, expressed as WGS84 latitude, longitude and altitude (metres).
 # These six points are the calibration POIs from script_calibracao.py, useful for
 # checking the workflow. Replace/add entries to project new real-world points.
 POINTS_GPS = [
-    {"id": "POI 1 (check)", "lat": 42.352778, "lon": -71.045000, "alt": 63.0},
-    {"id": "POI 2 (check)", "lat": 42.349580, "lon": -71.075236, "alt": 240.0},
-    {"id": "POI 3 (check)", "lat": 42.351944, "lon": -71.055833, "alt": 119.0},
-    {"id": "POI 4 (check)", "lat": 42.355556, "lon": -71.051667, "alt": 134.0},
-    {"id": "POI 5 (check)", "lat": 42.356111, "lon": -71.051389, "alt": 119.0},
-    {"id": "POI 6 (check)", "lat": 42.357500, "lon": -71.050278, "alt": 75.0},
+    {"id": "POI 1 (check)", "lat": 40.631542, "lon": -8.659981, "alt": 21.12},
+    {"id": "POI 2 (check)", "lat": 40.631381, "lon": -8.660189, "alt": 20.03},
+    {"id": "POI 3 (check)", "lat": 40.631542, "lon": -8.659981, "alt": 3.92},
+    {"id": "POI 4 (check)", "lat": 40.631381, "lon": -8.660189, "alt": 2.86},
+    {"id": "POI 5 (check)", "lat": 40.631944, "lon": -8.660367, "alt": 6.37},
 ]
 
 # Observed / correct image positions of the six calibration POIs (pixels).
 # These are drawn as dark-blue crosses, while GPS-projected positions are red circles.
 # Keep this list in the same order as POINTS_GPS.
 OBSERVED_IMAGE_POINTS = [
-    {"id": "POI 1", "x": 357, "y": 734},
-    {"id": "POI 2", "x": 568, "y": 635},
-    {"id": "POI 3", "x": 630, "y": 666},
-    {"id": "POI 4", "x": 1006, "y": 656},
-    {"id": "POI 5", "x": 1068, "y": 673},
-    {"id": "POI 6", "x": 1245, "y": 729},
+    {"id": "POI 1", "x": 678, "y": 680},
+    {"id": "POI 2", "x": 685, "y": 417},
+    {"id": "POI 3", "x": 861, "y": 674},
+    {"id": "POI 4", "x": 862, "y": 419},
+    {"id": "POI 5", "x": 871, "y": 817},
 ]
 
 # Drawing options (OpenCV uses BGR colour order).

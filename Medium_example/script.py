@@ -24,32 +24,32 @@ from scipy.optimize import least_squares
 # ---------------------------------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = BASE_DIR / "Boston_Harbor"
-IMAGE_PATH = OUTPUT_DIR / "Boston_Harbor.png"
+OUTPUT_DIR = BASE_DIR / "Biblioteca"
+IMAGE_PATH = OUTPUT_DIR / "faraway.jpg"
 # Also accept the image next to script.py, which is convenient for a flat folder.
-if not IMAGE_PATH.exists() and (BASE_DIR / "Boston_Harbor.png").exists():
-    IMAGE_PATH = BASE_DIR / "Boston_Harbor.png"
-OUTPUT_FILE = OUTPUT_DIR / "best_camera_boston.npz"
+if not IMAGE_PATH.exists() and (BASE_DIR / "faraway.jpg").exists():
+    IMAGE_PATH = BASE_DIR / "faraway.jpg"
+OUTPUT_FILE = OUTPUT_DIR / "camera_faraway.npz"
 
 # Tables written by this script.
-LOO_RESULTS_CSV = OUTPUT_DIR / "best_loo_parameter_results.csv"
-VFOV_SUMMARY_CSV = OUTPUT_DIR / "best_vfov_stability_summary.csv"
-PARAMETER_COMPARISON_CSV = OUTPUT_DIR / "best_camera_parameter_comparison.csv"
+LOO_RESULTS_CSV = OUTPUT_DIR / "faraway_loo_parameter_results.csv"
+VFOV_SUMMARY_CSV = OUTPUT_DIR / "faraway_vfov_stability_summary.csv"
+PARAMETER_COMPARISON_CSV = OUTPUT_DIR / "faraway_camera_parameter_comparison.csv"
 
 # Local ENU origin (WGS84 latitude, longitude, altitude in metres).
-origin_lat = 42.35256
-origin_lon = -71.0465
-origin_alt = 50.0
+origin_lat = 40.632175
+origin_lon = -8.659642
+origin_alt = 5.775875
 
 poi_data = pd.DataFrame({
-    "id": [1, 2, 3, 4, 5, 6],
-    "img_x": [357, 568, 630, 1006, 1068, 1245],
-    "img_y": [734, 635, 666, 656, 673, 729],
-    "map_lat": [42.352778, 42.349580, 42.351944,
-                42.355556, 42.356111, 42.357500],
-    "map_lng": [-71.045000, -71.075236, -71.055833,
-                -71.051667, -71.051389, -71.050278],
-    "map_altitude": [63, 240, 119, 134, 119, 75],
+    "id": [1, 2, 3, 4, 5],
+    "img_x": [678, 685, 861, 862, 871],
+    "img_y": [680, 417, 674, 419, 817],
+    "map_lat": [40.631542, 40.631381, 40.631542,
+                40.631381, 40.631944],
+    "map_lng": [-8.659981, -8.660189, -8.659981,
+                -8.660189, -8.660367],
+    "map_altitude": [21.12, 20.06, 3.92, 2.86, 6.37],
 })
 
 # Manual VFOV: use this value as the starting guess, but STILL run LOO.

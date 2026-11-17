@@ -4,6 +4,10 @@
 
 Ficheiros que não encaixam em apenas um dos temas que há no repositório.
 
+## Medium_example
+
+Recriação do projeto demonstrado neste [artigo](https://medium.com/@rohith.sunkara/reconstructing-the-real-world-estimating-camera-position-from-images-and-gps-coordinates-6fd79009af28)
+
 ## Papers
 
 Papers lidos para a construção do State of the Art.
@@ -22,7 +26,7 @@ Aplicação feita no Unity que acede à câmara do telemóvel e, no instante que
 
 ## Visao
 
-Scripts python com vários objetivos:
-    - Calibração de cãmeras com o auxílio de um padrão xadrez;
-    - Projecão de um cubo no padrão para validar os parâmetros da calibração;
+Scripts python com vários objetivos:\
+    - Calibração de cãmeras com o auxílio de um padrão xadrez;\
+    - Projecão de um cubo no padrão para validar os parâmetros da calibração;\
     - Tentar calcular a localização do dispositivo que tirou uma foto tendo em conta a calibração previamente feita, as coordenadas de pelo menos 3 pontos e onde estes estão na foto.

@@ -1,0 +1,23 @@
+dep5:
+hfov = 72.93
+vfov = 45.1453
+camera:
+Latitude	40.6317°
+Longitude	-8.6589°
+Altitude	9.0504 m
+
+anfs:
+HFOV = 74,78°
+VFOV = 46,53°
+camera:
+Latitude	40,6322°
+Longitude	-8,6596°
+Altitude	6,2997 m
+
+faraway:
+HFOV = 72,96°
+VFOV = 45,16°
+camara
+Latitude    40,6324°
+Longitude   -8,6610°
+Altitude    10,3884 m

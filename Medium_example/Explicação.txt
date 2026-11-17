@@ -1,0 +1,36 @@
+# Funcionamento do script.py
+
+- Converte as coordenadas GPS de WGS84 para ECEF (referencial cartesiano centrado na Terra) e depois para ENU (referencial local Este, Norte, Cima).
+
+- Constrói a matriz intrínseca inicial da câmara, usando a resolução da imagem e um VFOV inicial:
+  - f = H / (2 × tan(VFOV / 2))
+  - Assume píxeis quadrados (fx = fy), ponto principal no centro da imagem e distorção nula.
+
+- Estima os parâmetros da câmara:
+  - Usa solvePnP() para obter uma estimativa inicial da posição e orientação.
+  - Usa least_squares() para otimizar a rotação, translação e distância focal.
+  - Minimiza o erro entre os pontos observados e os pontos projetados na imagem.
+
+- Calcula os parâmetros finais:
+  - Matriz de rotação R e vetor de translação t.
+  - Centro da câmara em ENU: C = -Rᵀ × t.
+  - Converte a posição da câmara para coordenadas GPS.
+  - Calcula o VFOV final: VFOV = 2 × atan(H / (2 × f)).
+
+- Validação Leave-One-Out (LOO):
+  - Repete a calibração deixando de fora um ponto de cada vez.
+  - Usa os restantes N-1 pontos para calibrar e reprojeta o ponto excluído.
+  - Calcula o erro de reprojeção: Erro = √(Δx² + Δy²).
+
+- Classifica e compara os resultados:
+  - Tipo A: erro baixo e geometria válida.
+  - Tipo B: erro baixo, mas geometria suspeita ou inválida.
+  - Tipo C: erro elevado ou otimização falhada.
+  - Compara o erro médio LOO, a validade geométrica e a estabilidade dos parâmetros (posição, orientação e VFOV).
+
+- Seleciona o melhor VFOV, privilegiando menor erro de reprojeção e, em caso de resultados semelhantes, melhor geometria e estabilidade.
+
+- Faz calibrações finais:
+  - Uma com todos os pontos.
+  - Outras excluindo um ponto de cada vez.
+  - Compara os parâmetros obtidos e seleciona a calibração final com geometria válida.
