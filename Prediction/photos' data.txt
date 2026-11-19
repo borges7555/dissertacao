@@ -1,0 +1,43 @@
+coordinates of my positions:
+	Behind Dept. 5 (dep5):
+		- direction -> north at 112 degrees
+		- height -> 166 cm
+		- photo taken at: 40.631679, -8.658937, 9.75
+		- magX -> 23.82 
+		- magY -> -36.82
+		- magZ -> 9.62
+		
+	Near the amphitheaters (anfs):
+		- direction -> north at 190 degrees
+		- height -> 162 cm
+		- photo taken at: 40.632200, -8.659633, 7.41
+		- magX -> 4.46
+		- magY -> -36.82
+		- magZ -> 25.30
+	
+	Farthest point (faraway):
+		- direction -> north at 220 degrees
+		- height -> 163 cm
+		- photo taken at: 40.632335, -8.660956, 1.68
+		- magX -> -16.51
+		- magY -> -36.82
+		- magZ -> 19.68
+	
+	Parking lot (estacionamento):
+		- direction -> north at 294 degrees
+		- height -> 164 cm
+	     	- photo taken at: 40.630927, -8.660907, 2.05
+	     	- magX -> -23.47
+		- magY -> -36.82
+		- magZ -> -10.45
+	
+coordinates of library points:
+	- 40.631278, -8.659628, 22.25/5.05 -> upper-left corner facing Dept. 5
+	- 40.631542, -8.659981, 21.12/3.92 -> upper-right corner facing Dept. 5
+	- 40.631381, -8.660189, 20.06/2.86 -> upper-left corner facing the parking lot
+
+extra points:
+	- 40.631578, -8.659344, 6.000000 -> lamp post viewed from Dept. 5
+	- 40.632175, -8.659642, 5.775875 -> manhole cover viewed from the amphitheaters
+	- 40.631944, -8.660367, 6.37 -> lamp post viewed from the farthest position
+	- 40.630994, -8.660761, 0.390457 -> tree viewed from the parking lot

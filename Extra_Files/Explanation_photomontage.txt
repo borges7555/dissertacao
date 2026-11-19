@@ -1,0 +1,35 @@
+windPRO PHOTOMONTAGE:
+	- General idea: compare the visible horizon in the photo with the virtual horizon, calculated from the digital terrain elevation model
+
+	- How to calculate the virtual horizon:
+		- Requires the camera's geographic position, altitude, and a digital terrain elevation model, typically represented by a TIN (Triangulated Irregular Network)
+		- From this data, it calculates the terrain points that block the camera's line of sight
+		- The horizon consists of the line-of-sight blocking points, calculated for each degree of direction from the camera's position
+		- The camera is at a given point and the software analyzes the terrain in a specific direction
+		- For that direction, it looks for the terrain points that define the visual boundary between the sky and the landscape from the terrain elevation data (TIN)
+		- Repeating this process for each degree of azimuth produces a sequence of points that represents the visible horizon from the camera's location
+
+	- How to transform the virtual horizon into a line in the photo:
+		- After calculating the horizon in geographic coordinates, the software uses the camera model to project the points onto the image
+		- This model takes into account parameters such as:
+			- Pan -> Horizontal direction the camera is pointing toward (azimuth)
+			- Tilt -> Vertical tilt of the camera
+			- Rotation -> Rotation of the image around the optical axis (roll)
+			- Focal length -> Focal length of the lens
+			- Camera position -> Position and altitude of the camera
+		- The result is a yellow line that represents where the calculated horizon should appear in the photograph, considering the current camera parameters
+
+	- How to calibrate the photo with the line:
+		- After comparing the virtual horizon line with the real horizon, adjust the parameters until the horizons align
+		- The main parameters are Pan, Tilt, and Rotation
+
+	- Important factors to get a good result:
+		- The digital elevation model must accurately represent the terrain that appears on the horizon of the photograph
+		- Accurate camera position
+
+	- Other windPRO methods for calibrating photos and what they allow you to calibrate:
+		- Horizon Line -> Pan, Tilt, and Rotation
+		- Control Points -> Position, orientation, and focal length
+		- Wireframe -> Comparison with terrain elements in the foreground
+		- Auto Optimisation -> Automatic optimization of camera parameters
+		- Tracelines -> Use of references obtained from other calibrated cameras

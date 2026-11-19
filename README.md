@@ -1,32 +1,32 @@
-# Organização do repositório
+# Repository layout
 
-## Ficheiros_Extra
+## Extra_Files
 
-Ficheiros que não encaixam em apenas um dos temas que há no repositório.
+Files that do not fit into just one of the themes present in the repository.
 
 ## Medium_example
 
-Recriação do projeto demonstrado neste [artigo](https://medium.com/@rohith.sunkara/reconstructing-the-real-world-estimating-camera-position-from-images-and-gps-coordinates-6fd79009af28)
+Recreation of the project shown in this [article](https://medium.com/@rohith.sunkara/reconstructing-the-real-world-estimating-camera-position-from-images-and-gps-coordinates-6fd79009af28)
 
 ## Papers
 
-Papers lidos para a construção do State of the Art.
+Read papers for the making of the State of the Art.
 
 ## Prediction
 
-Programa que tenta calcular qual a localização de um ou mais ponto numa foto tendo em conta a(s) sua(s) coordenadas e as coordenadas e orientação da câmara.
+A program that attempts to calculate the location of one or more points in a photo, taking into account their coordinates as well as the camera's coordinates and orientation.
 
-## Tese
+## Thesis
 
-Documento da tese.
+Thesis document.
 
 ## Unity
 
-Aplicação feita no Unity que acede à câmara do telemóvel e, no instante que uma foto é tirada, guarda os dados de vários sensores do telemóvel, como bússola, GPS, magnetómetro, etc.
+An application built in Unity that accesses the mobile phone's camera and,  in the instant a photo is taken, saves data from various phone sensors, such as the compass, GPS, magnetometer, etc.
 
-## Visao
+## Vision
 
-Scripts python com vários objetivos:\
-    - Calibração de cãmeras com o auxílio de um padrão xadrez;\
-    - Projecão de um cubo no padrão para validar os parâmetros da calibração;\
-    - Tentar calcular a localização do dispositivo que tirou uma foto tendo em conta a calibração previamente feita, as coordenadas de pelo menos 3 pontos e onde estes estão na foto.
+Python scripts with various goals:\
+    - Camera calibration with the aid of a checkerboard pattern;\
+    - Projection of a cube onto the pattern to validate the calibration parameters;\
+    - Attempt to calculate the location of the device that took a photo, taking into account a previously performed calibration, the coordinates of at least 3 points, and the positions of these points within the photo.

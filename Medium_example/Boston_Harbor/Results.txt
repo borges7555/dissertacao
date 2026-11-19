@@ -1,0 +1,45 @@
+Results when MANUAL_VFOV_DEG = None:
+	- VFOV chosen: 80°
+	- exclude_POI_2
+	- Initial intrinsics guess:
+ 	   [[643.5469   0.0000 960.0000]
+  	   [  0.0000 643.5469 540.0000]
+           [  0.0000   0.0000   1.0000]]
+	- Initial distortion guess: [0. 0. 0. 0. 0.]
+	- Calibration reprojection error (training RMSE): 2.2532
+
+	- Intrinsic Matrix (K):
+ 	  [[594.8576   0.0000 960.0000]
+ 	  [  0.0000 594.8576 540.0000]
+	  [  0.0000   0.0000   1.0000]]
+	- Distortion Coefficients (D): [0. 0. 0. 0. 0.]
+	- Rotation Matrix (R - ENU to Camera):
+	  [[ 0.37534375  0.92568169  0.04722786]
+	  [-0.25419477  0.15180255 -0.95516543]
+	  [-0.89134846  0.3465103   0.29228159]]
+	- Translation Vector (T - ENU to Camera): [-101.60663306   50.5104189   129.72261961]
+	- Estimated Horizontal FOV: 116.43
+	- Estimated Vertical FOV: 84.4650929484865
+	- Camera Center: [166.60495728, 41.4375653, 15.12893692]
+
+Results when MANUAL_VFOV_DEG = 80.94 (same as article):
+	- Initial intrinsics guess:
+ 	  [[6.3292953e+02 0.0000000e+00 9.6000000e+02]
+	  [0.0000000e+00 6.3292953e+02 5.4000000e+02]
+	  [0.0000000e+00 0.0000000e+00 1.0000000e+00]]
+	- Initial distortion guess: [0. 0. 0. 0. 0.]
+	- Calibration reprojection error (training RMSE): 2.2532
+
+	- Intrinsic Matrix (K):
+	  [[594.8576   0.0000 960.0000]
+	  [  0.0000 594.8576 540.0000]
+	  [  0.0000   0.0000   1.0000]]
+	- Distortion Coefficients (D): [0. 0. 0. 0. 0.]
+	- Rotation Matrix (R - ENU to Camera):
+	  [[ 0.37534373  0.92568170  0.04722786]
+	  [-0.25419477  0.15180254 -0.95516544]
+	  [-0.89134847  0.34651028  0.29228158]]
+	- Translation Vector (T - ENU to Camera): [-101.60664755   50.51042377  129.72263943]
+	- Estimated Horizontal FOV: 116.43
+	- Estimated Vertical FOV: 84.47
+	- Camera Center: [166.60498052, 41.43757493, 15.12893810]

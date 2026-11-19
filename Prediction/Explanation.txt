@@ -1,0 +1,34 @@
+1. Where the target spot is, from my POV. (GeoMath)
+  - From the coordinates, determines:
+  - true bearing, clockwise from true north
+  - distance, using the haversine formula
+  - elevation angle, atan2(spotHeight − yourHeight, distance)
+
+2. Where the phone is pointing. (CameraOrientation)
+  - Uses the accelerometer (which points toward gravity) and magnetometer:
+  - Up = −accel / |accel|
+  - East = magnetic × Up
+  - North = Up × East
+
+3. Expresses the target spot direction in the device's axes(DirectionInDeviceFrame)
+  - Transforms the bearing (b) and elevation (e) into North/East/Up directions: east = sin(b)*cos(e), north = cos(b)*cos(e), up = sin(e)
+  - Before that, converts the bearing to magnetic north by subtracting declination and adds CompassBiasDeg (0, by default)
+  - Then recombines that direction with the 3 arrows from point 2: East*east + North*north + Up*up resulting in a vector (x, y, z)
+  - Uses the formulas atan2(x, depth) and atan2(y, depth) to determine the vertical and horizontal direction angles
+  - Uses the formulas fx * x/depth and fy * y/depth to determine the pixel offset of the calculated position relative to the center
+
+case			real heading	camera heading from raw sensors		error		Unity’s compass		error
+anfs			170.0°		    185.32°						        +15.32°	    173.81°				+3.81°
+dep5			248.0°		    249.18°						        +1.18°	    270.37°				+22.37°
+faraway		    140.0°		    144.06°						        +4.06°	    164.53°				+24.53°
+estacionamento	66.0°		    66.11°						        +0.11°	    97.94°				+31.94°
+average												                +5.17°					    	+20.66°
+
+The dip, also called magnetic inclination, is the angle at which Earth’s magnetic field points down into the ground, measured from the horizontal.
+dip = asin( (m · g) / (|m| · |g|) )
+
+case			dip		camera heading error
+estacionamento	55.7°		+0.1°
+dep5			49.8°		+1.2°
+faraway		    48.9°		+4.1°
+anfs			43.3°		+15.3°
