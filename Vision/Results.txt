@@ -1,5 +1,28 @@
+Only with library points:
+	- dep5 (40.631679, -8.658937, 9.75) -> 40.631712, -8.658857, 12.85 (distance 2D of 7.7m)
+	- anfs (40.632200, -8.659633, 7.41) -> 40.632238, -8.659586, 5.82 (distance 2D of 5.6m)
+	- faraway (40.632335, -8.660956, 1.68) -> 40.632428, -8.660954, 14.28 (distance 2D of 10.4m)
+
+With extra points:
+	- dep5 -> 40.631695, -8.658865, 9.23 (distance 2D of 6.3m)
+	- anfs -> 40.632231, -8.659627, 8.98 (distance 2D of 3.5m)
+
+Removing one point at a time:
+	dep5:
+		- Point 1 -> 40.631690, -8.658876, 9.01 (distance 2D of 5.3m)
+		- Point 2 -> 40.631694, -8.658865, 9.17 (distance 2D of 6.3m)
+		- Point 3 -> 40.631696, -8.658857, 9.11 (distance 2D of 7.0m)
+		- Point 4 -> 40.631695, -8.658852, 9.08 (distance 2D of 7.4m)
+	anfs:
+		- Point 1 -> 40.632229, -8.659627, 8.84 (distance 2D of 3.3m)
+		- Point 2 -> 40.632239, -8.659625, 9.49 (distance 2D of 4.4m)
+		- Point 3 -> 40.632231, -8.659627, 8.99 (distance 2D of 3.5m)
+		- Point 4 -> 40.632230, -8.659627, 8.92 (distance 2D of 3.4m)
+
+///////////////////////////////////////
+
 Mobile phone:
-Poster (61x91) at a distance of 121 cm (mobile phone aligned with the origin, slightly tilted):
+Poster (61x91) at a distance of 121 cm (mobile phone aligned with the origin, slightly tilted) (origin is the lower left corner of the poster):
 	- Camera position relative to the origin (cm):
      		- X (right +) = 1.4
      		- Y (up +) = 1.5

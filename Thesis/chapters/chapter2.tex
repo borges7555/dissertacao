@@ -6,162 +6,162 @@
 \end{introduction}
 
 %======================================================================
-\section{Enquadramento: AR Geo-referenciada em Exteriores}
+\section{Background: Geo-referenced Outdoor AR}
 \label{sec:sota_enquadramento}
 
-Designa-se por \textit{GeoAR} (AR baseada em dados geográficos) a apresentação de objetos virtuais em posições geográficas concretas, por exemplo turbinas eólicas planeadas, sobrepostos à imagem da câmara de um dispositivo móvel. Enquanto para cenários de AR em interiores e de curto alcance existem ferramentas de desenvolvimento estabelecidas (por exemplo, ARCore e ARKit), a GeoAR enfrenta desafios adicionais para os quais não existiam ferramentas disponíveis no mercado~\cite[Sec.~2.2.2.1]{ar4wind2023}. Dois problemas são recorrentes na literatura e nos trabalhos analisados.
+\textit{GeoAR} (geodata-based AR) refers to the display of virtual objects at specific geographic positions, for example planned wind turbines, superimposed on the camera image of a mobile device. While established development tools exist for indoor and short-range AR scenarios (for example, ARCore and ARKit), GeoAR faces additional challenges for which no tools were available on the market~\cite[Sec.~2.2.2.1]{ar4wind2023}. Two problems recur in the literature and in the works analysed.
 
-\paragraph{Localização geo-referenciada.} A apresentação com posição correta exige conhecer a posição e a orientação do dispositivo num sistema de coordenadas geográfico. Os sensores integrados nos dispositivos móveis (recetor GPS para a posição e bússola digital para a orientação) são demasiado imprecisos, o que faz com que o objeto virtual surja na posição errada do ecrã e leve a uma perceção errada da sua localização na paisagem~\cite[Sec.~1.2 e 2.2.2.1]{ar4wind2023}.
+\paragraph{Geo-referenced localisation.} Displaying an object at the correct position requires knowing the position and orientation of the device in a geographic coordinate system. The sensors built into mobile devices (a GPS receiver for position and a digital compass for orientation) are too imprecise, which makes the virtual object appear at the wrong place on the screen and leads to a wrong perception of its location in the landscape~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
 
-\paragraph{Oclusão em campo distante.} Para um resultado credível, os objetos virtuais têm de ser ocultados por elementos reais, como vegetação, relevo ou edifícios. Os sensores dos dispositivos móveis apenas permitem reconstruir digitalmente o ambiente imediato, num raio de poucos metros, pelo que a oclusão por elementos distantes (por exemplo, uma floresta) não é obtida de forma direta~\cite[Sec.~2.2.2.1]{ar4wind2023}.
+\paragraph{Far-field occlusion.} For a credible result, virtual objects must be hidden by real elements such as vegetation, terrain or buildings. The sensors of mobile devices only allow the immediate surroundings to be reconstructed digitally, within a radius of a few metres, so occlusion by distant elements (for example, a forest) cannot be obtained directly~\cite[Sec.~2.2.2.1]{ar4wind2023}.
 
-A resolução conjunta destes dois problemas é designada \textit{calibração GeoAR}: antes de a visualização ser correta, o sistema tem de ser ajustado de modo a permitir uma localização precisa e uma oclusão correta~\cite{ar4wind2023}.
+Solving these two problems together is called \textit{GeoAR calibration}: before the visualisation can be correct, the system has to be adjusted so as to allow precise localisation and correct occlusion~\cite{ar4wind2023}.
 
-\subsection{Famílias de Abordagens}
+\subsection{Families of Approaches}
 \label{sec:sota_familias}
 
-Com base nos trabalhos analisados, distinguem-se as seguintes famílias de abordagens:
+Based on the works analysed, the following families of approaches can be distinguished:
 
 \begin{itemize}
-    \item \textbf{Abordagens automáticas baseadas em imagem.} Comparam a imagem da câmara com modelos 3D de grandes áreas previamente registadas (nuvens de pontos). O relatório do \textit{ar4wind} remete para a literatura sobre geo-localização visual em larga escala~\cite{zamir2018geoloc} e para revisões da investigação em AR~\cite{kim2018ismar}, mas considera estas soluções lentas, propensas a erros e dificilmente transferíveis para áreas extensas arbitrárias~\cite[Sec.~1.2 e 2.2.2.1]{ar4wind2023}.
-    \item \textbf{Serviços proprietários de posicionamento visual.} O exemplo referido é o \textit{Visual Positioning System} (VPS) da Google, disponível através da \textit{ARCore Geospatial API}. Depende dos dados do fornecedor (em parte antigos) e funciona apenas ao longo de vias públicas selecionadas, não em propriedade privada nem em espaços abertos como prados e florestas~\cite[Sec.~2.4]{ar4wind2023}.
-    \item \textbf{Calibração manual assistida pelo utilizador.} O utilizador corrige a posição e a orientação com ajuda de mapas, pontos de referência ou modelos 3D da paisagem sobrepostos à imagem. É a abordagem adotada no \textit{ar4wind} (Secção~\ref{sec:ar4wind_calibracao}).
-    \item \textbf{Calibração a partir de correspondências 2D--3D.} Estima os parâmetros intrínsecos e extrínsecos da câmara minimizando o erro de reprojeção de pontos com coordenadas geográficas conhecidas (Secção~\ref{sec:sunkara})~\cite{sunkara2025}.
-    \item \textbf{Calibração com âncoras georreferenciadas.} Um especialista regista previamente uma âncora num local, que permite a calibração automática por utilizadores comuns (Secção~\ref{sec:ar4wind_metodoC}).
+    \item \textbf{Automatic image-based approaches.} They compare the camera image with previously registered 3D models of large areas (point clouds). The \textit{ar4wind} report refers to the literature on large-scale visual geo-localisation~\cite{zamir2018geoloc} and to reviews of AR research~\cite{kim2018ismar}, but considers these solutions slow, error-prone and hard to transfer to arbitrary large areas~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
+    \item \textbf{Proprietary visual positioning services.} The example mentioned is Google's \textit{Visual Positioning System} (VPS), available through the \textit{ARCore Geospatial API}. It depends on the provider's data (partly outdated) and only works along selected public roads, not on private property or in open spaces such as meadows and forests~\cite[Sec.~2.4]{ar4wind2023}.
+    \item \textbf{Manual, user-assisted calibration.} The user corrects position and orientation with the help of maps, reference points or 3D landscape models overlaid on the image. This is the approach adopted in \textit{ar4wind} (Section~\ref{sec:ar4wind_calibracao}).
+    \item \textbf{Calibration from 2D--3D correspondences.} It estimates the intrinsic and extrinsic parameters of the camera by minimising the reprojection error of points with known geographic coordinates (Section~\ref{sec:sunkara})~\cite{sunkara2025}.
+    \item \textbf{Calibration with georeferenced anchors.} An expert registers an anchor at a location beforehand, which then allows automatic calibration by ordinary users (Section~\ref{sec:ar4wind_metodoC}).
 \end{itemize}
 
 %======================================================================
-\section{Trabalhos Analisados}
+\section{Works Analysed}
 \label{sec:sota_trabalhos}
 
 %----------------------------------------------------------------------
-\subsection{Relatório Final do Projeto \textit{ar4wind}}
+\subsection{Final Report of the \textit{ar4wind} Project}
 \label{sec:ar4wind}
 
 \begin{table}[htbp]
 \centering
-\caption{Ficha do trabalho: relatório final do projeto \textit{ar4wind}.}
+\caption{Work summary: final report of the \textit{ar4wind} project.}
 \label{tab:ficha_ar4wind}
 \small
 \begin{tabular}{p{3.2cm}p{9.8cm}}
 \hline
-\textbf{Referência} & \textit{Schlussbericht des Projekts ar4wind}~\cite{ar4wind2023} (relatório em alemão, 52 páginas) \\
-\textbf{Âmbito} & Visualização \textit{in situ} de turbinas eólicas planeadas com AR móvel (mAR), em processos de participação pública \\
-\textbf{Foco neste capítulo} & Localização e calibração GeoAR (Sec.~2.2.2 do relatório) e resultados da avaliação em campo (Sec.~2.2.4) \\
-\textbf{Plataforma} & Unity; iPad (iOS) e Samsung Galaxy Tab (Android) \\
+\textbf{Reference} & \textit{Schlussbericht des Projekts ar4wind}~\cite{ar4wind2023} (report in German, 52 pages) \\
+\textbf{Scope} & \textit{In situ} visualisation of planned wind turbines with mobile AR (mAR), in public participation processes \\
+\textbf{Focus in this chapter} & GeoAR localisation and calibration (Sec.~2.2.2 of the report) and field evaluation results (Sec.~2.2.4) \\
+\textbf{Platform} & Unity; iPad (iOS) and Samsung Galaxy Tab (Android) \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsubsection{Contexto e Objetivos}
+\subsubsection{Context and Objectives}
 
-A escolha de locais para parques eólicos terrestres gera frequentemente debates longos e controversos, sendo criticados os impactos acústicos e visuais e a alteração da paisagem. O \textit{ar4wind} investigou em que medida visualizações de turbinas em telemóveis ou \textit{tablets} podem apoiar debates locais baseados em factos, em processos de participação informais. Na prática comercial, as visualizações fotorrealistas eram produzidas em computador por especialistas, limitadas a pontos de vista pré-definidos (fotomontagens estáticas) ou realizadas em realidade virtual~\cite[Sec.~1.1 e 1.2]{ar4wind2023}.
+The choice of sites for onshore wind farms frequently gives rise to long and controversial debates, with acoustic and visual impacts and changes to the landscape being the main criticisms. \textit{ar4wind} investigated to what extent visualisations of turbines on smartphones or \textit{tablets} can support fact-based local debates in informal participation processes. In commercial practice, photorealistic visualisations were produced on computers by specialists, limited to predefined viewpoints (static photomontages) or carried out in virtual reality~\cite[Sec.~1.1 and 1.2]{ar4wind2023}.
 
-À data da candidatura, o relatório refere que não existia nenhuma solução comercial de mAR adequada à visualização realista de turbinas eólicas. Eram conhecidas apenas três implementações de projetos de investigação: o ``MoDal-MR'' da LandPlan OS, o ``mARGo'' da HTW Berlin e o ``Linthwind'' da Echtzeit GmbH e da ZHAW (Suíça). Eram protótipos com funcionalidades básicas, cuja adequação a processos de participação pública não tinha sido investigada de forma sistemática~\cite[Sec.~1.2]{ar4wind2023}.
+At the time of the grant application, the report states that no commercial mAR solution suitable for the realistic visualisation of wind turbines existed. Only three research implementations were known: ``MoDal-MR'' by LandPlan OS, ``mARGo'' by HTW Berlin and ``Linthwind'' by Echtzeit GmbH and ZHAW (Switzerland). These were prototypes with basic functionality, and their suitability for public participation processes had not been systematically investigated~\cite[Sec.~1.2]{ar4wind2023}.
 
-Do ponto de vista dos utilizadores, a análise de necessidades, assente em entrevistas a peritos\footnote{O relatório refere doze entrevistas na Secção~2.1 e dezasseis na Secção~2.2.1.2.} e num \textit{workshop} com cerca de 20 participantes em novembro de 2021, identificou quatro grupos primários (municípios, planeamento regional, acompanhamento de processos e promotores de projetos) e dois secundários (cidadãos e peritos) \cite[Sec.~2.1 e 2.2.1.2]{ar4wind2023}.
+From the users' point of view, the needs analysis, based on expert interviews\footnote{The report mentions twelve interviews in Section~2.1 and sixteen in Section~2.2.1.2.} and on a workshop with about 20 participants in November 2021, identified four primary groups (municipalities, regional planning, process facilitation and project developers) and two secondary groups (citizens and experts)~\cite[Sec.~2.1 and 2.2.1.2]{ar4wind2023}.
 
-\subsubsection{Calibração GeoAR}
+\subsubsection{GeoAR Calibration}
 \label{sec:ar4wind_calibracao}
 
-O relatório propõe três métodos de calibração manual ou assistida, resumidos na Tabela~\ref{tab:ar4wind_metodos}. Os métodos A e B foram implementados e avaliados nos protótipos; o método C foi concebido e implementado como protótipo, mas não pôde ser testado em casos práticos~\cite[Sec.~2.2.2.4]{ar4wind2023}.
+The report proposes three manual or assisted calibration methods, summarised in Table~\ref{tab:ar4wind_metodos}. Methods A and B were implemented and evaluated in the prototypes; method C was designed and implemented as a prototype but could not be tested in practical cases~\cite[Sec.~2.2.2.4]{ar4wind2023}.
 
-\paragraph{Método A: ponto de referência e segmentação do céu.}
+\paragraph{Method A: reference point and sky segmentation.}
 \label{sec:ar4wind_metodoA}
-O método decorre em três passos. Primeiro, a posição estimada por GNSS é corrigida manualmente numa vista de mapa (imagem de satélite). Segundo, o utilizador define no mapa um ponto de referência visível a partir do local (por exemplo, uma torre de igreja, o telhado de uma casa ou uma árvore isolada) e, na vista de AR, roda o dispositivo até que uma linha de referência virtual aponte para o ponto real correspondente, o que determina a orientação. Terceiro, define-se o céu na imagem da câmara selecionando manualmente intervalos de cor típicos do céu (com um limiar de sensibilidade ajustável), de forma a separar as zonas onde a turbina é visível (céu) das zonas em que é ocultada (relevo, edifícios, vegetação)~\cite[Sec.~2.2.2.2 e 2.2.3.1]{ar4wind2023}.
+The method proceeds in three steps. First, the position estimated by GNSS is corrected manually on a map view (satellite image). Second, the user defines on the map a reference point visible from the location (for example, a church tower, the roof of a house or an isolated tree) and, in the AR view, rotates the device until a virtual reference line points at the corresponding real point, which determines the orientation. Third, the sky is defined in the camera image by manually selecting colour ranges typical of the sky (with an adjustable sensitivity threshold), so as to separate the areas where the turbine is visible (sky) from those where it is hidden (terrain, buildings, vegetation)~\cite[Sec.~2.2.2.2 and 2.2.3.1]{ar4wind2023}.
 
-A vantagem principal é a flexibilidade espacial: pode ser usado em qualquer local sem depender de modelos 3D externos, além do material cartográfico. As desvantagens são o elevado esforço manual (muitos passos de interação), a dificuldade de encontrar pontos de referência correspondentes entre o mapa e a vista real e a dependência da qualidade da segmentação face à cor do céu, que não funciona bem com contrastes elevados (por exemplo, céu azul com nuvens)~\cite[Sec.~2.2.2.2]{ar4wind2023}.
+The main advantage is spatial flexibility: it can be used anywhere without depending on external 3D models, other than cartographic material. The disadvantages are the high manual effort (many interaction steps), the difficulty of finding matching reference points between the map and the real view, and the dependence of segmentation quality on the colour of the sky, which does not work well with high contrasts (for example, blue sky with clouds)~\cite[Sec.~2.2.2.2]{ar4wind2023}.
 
-\paragraph{Método B: modelos 3D da paisagem.}
+\paragraph{Method B: 3D landscape models.}
 \label{sec:ar4wind_metodoB}
-O método usa modelos geográficos 3D públicos (modelos digitais de superfície, de terreno e modelos 3D de cidades), tanto como auxiliar visual de calibração como para a oclusão. Os dados disponibilizados pelos institutos cartográficos estaduais em formato textual são convertidos \textit{offline} por um \textit{pipeline} de processamento de geodados em pequenos \textit{tiles} 3D, num sistema de coordenadas comum e num formato 3D eficiente, comprimidos e guardados num servidor com metadados, de onde o cliente mAR os obtém a pedido. As etapas do \textit{pipeline} são: conversão do sistema de coordenadas, geração de \textit{tiles}, redução e compressão, geração de malhas 3D e geração de metadados~\cite[Sec.~2.2.2.3, Fig.~11]{ar4wind2023}.
+The method uses public 3D geographic models (digital surface models, terrain models and 3D city models), both as a visual aid for calibration and for occlusion. The data provided in textual format by the state mapping agencies are converted \textit{offline} by a geodata processing \textit{pipeline} into small 3D \textit{tiles}, in a common coordinate system and an efficient 3D format, compressed and stored on a server together with metadata, from where the mAR client retrieves them on request. The steps of the \textit{pipeline} are: coordinate system conversion, \textit{tile} generation, reduction and compression, 3D mesh generation and metadata generation~\cite[Sec.~2.2.2.3, Fig.~11]{ar4wind2023}.
 
-No cliente, o utilizador começa por corrigir a posição no mapa. Em seguida, o modelo 3D da envolvente é mostrado na vista de AR, mas inicialmente desalinhado, devido à imprecisão dos sensores de orientação (IMU) e da bússola. O utilizador ajusta-o à paisagem real com gestos de arrastamento: um dedo corrige a rotação do dispositivo e dois dedos corrigem a altura. O processo demora normalmente poucos segundos e, depois de alinhado, o modelo proporciona a oclusão correta das turbinas~\cite[Sec.~2.2.2.3, Fig.~12]{ar4wind2023}.
+On the client, the user starts by correcting the position on the map. The 3D model of the surroundings is then shown in the AR view, but initially misaligned, owing to the imprecision of the orientation sensors (IMU) and of the compass. The user adjusts it to the real landscape with drag gestures: one finger corrects the rotation of the device and two fingers correct the height. The process usually takes a few seconds and, once aligned, the model provides correct occlusion of the turbines~\cite[Sec.~2.2.2.3, Fig.~12]{ar4wind2023}.
 
-As recomendações de utilização reunidas pelo relatório (Figura~13 do relatório) incluem: uma correção da orientação global com elevada precisão, independente do local (cerca de 1 grau de desvio); ajuda e tutoriais integrados; pré-determinação da posição por mapa; seleção flexível de locais, uma vez que existem objetos de referência (árvores, edifícios, colinas) em quase todos os locais; foco num único campo de visão durante a calibração; calibração manual da altura; preferência por modelos de superfície e de terreno texturizados (o modelo de terreno quando existem cadeias de montanhas ou colinas visíveis, caso contrário o modelo de superfície texturizado); e preferência por \textit{smartphones} de ecrã grande em modo vertical, devendo ser ponderados gestos alternativos para \textit{tablets} em modo horizontal~\cite[Fig.~13]{ar4wind2023}.
+The usage recommendations gathered in the report (Figure~13 of the report) include: a high-precision, location-independent correction of the global orientation (about 1 degree of deviation); integrated help and tutorials; map-based pre-determination of the position; flexible choice of locations, since reference objects (trees, buildings, hills) exist at almost every location; focus on a single field of view during calibration; manual height calibration; preference for textured surface and terrain models (the terrain model when mountain ranges or hills are visible, otherwise the textured surface model); and preference for large-screen \textit{smartphones} in portrait mode, with alternative gestures to be considered for \textit{tablets} in landscape mode~\cite[Fig.~13]{ar4wind2023}.
 
-A vantagem é uma calibração mais rápida e, idealmente, mais simples, com oclusão automática por relevo, edifícios e vegetação, sem seleção do céu. As desvantagens são o maior esforço de implementação, a necessidade de grande capacidade de armazenamento e de infraestrutura informática, e o facto de estes modelos ainda não estarem disponíveis gratuitamente, com qualidade e atualidade equivalentes, em todos os estados federados alemães~\cite[Sec.~2.2.2.3]{ar4wind2023}. O relatório indica ainda que a descrição detalhada deste método foi publicada na literatura do consórcio~\cite{burkard2022gistam,burkard2022icict,burkard2022eis}.
+The advantage is a faster and, ideally, simpler calibration, with automatic occlusion by terrain, buildings and vegetation, without selecting the sky. The disadvantages are the greater implementation effort, the need for large storage capacity and IT infrastructure, and the fact that such models are not yet freely available, with equivalent quality and currency, in all German federal states~\cite[Sec.~2.2.2.3]{ar4wind2023}. The report also states that a detailed description of this method was published in the consortium's literature~\cite{burkard2022gistam,burkard2022icict,burkard2022eis}.
 
-\paragraph{Método C: âncoras em locais pré-definidos.}
+\paragraph{Method C: anchors at predefined locations.}
 \label{sec:ar4wind_metodoC}
-Nos ensaios verificou-se que os métodos A e B não são totalmente autoexplicativos e que uma formação prévia pode ser uma barreira para públicos alargados. Para visualizações em locais previamente definidos, o método C introduz âncoras de AR georreferenciadas, criadas antecipadamente por utilizadores formados (``peritos''), que desoneram os utilizadores comuns da tarefa de calibração. O processo tem dois passos~\cite[Sec.~2.2.2.4]{ar4wind2023}:
+The trials showed that methods A and B are not entirely self-explanatory and that prior training can be a barrier for wider audiences. For visualisations at predefined locations, method C introduces georeferenced AR anchors, created in advance by trained users (``experts''), which relieve ordinary users of the calibration task. The process has two steps~\cite[Sec.~2.2.2.4]{ar4wind2023}:
 
 \begin{enumerate}
-    \item \textbf{Criação da âncora (perito):} num local de visualização, determina-se a posição e a orientação globais do dispositivo com o método B. Em seguida, captura-se o ambiente imediato de vários ângulos com movimentos da câmara e cria-se, ao nível do solo, uma nuvem de pontos 3D de elevada qualidade. A âncora e a informação de calibração (posição e orientação da âncora e modelos 3D utilizados) ficam guardadas num servidor.
-    \item \textbf{Deteção automática da âncora (utilizador):} no local, o utilizador capta brevemente o ambiente (movendo o dispositivo) até a âncora ser reconhecida. O dispositivo fica localizado e calibrado automaticamente, e os modelos 3D associados asseguram a oclusão como no método B.
+    \item \textbf{Anchor creation (expert):} at a viewing location, the global position and orientation of the device are determined with method B. The immediate surroundings are then captured from several angles with camera movements and a high-quality 3D point cloud is created at ground level. The anchor and the calibration information (position and orientation of the anchor and 3D models used) are stored on a server.
+    \item \textbf{Automatic anchor detection (user):} on site, the user briefly captures the surroundings (by moving the device) until the anchor is recognised. The device is then localised and calibrated automatically, and the associated 3D models provide occlusion as in method B.
 \end{enumerate}
 
-A vantagem é que o passo manual exigente é feito uma só vez, por uma pessoa formada. As desvantagens são a restrição a locais pré-definidos e pré-referenciados, a necessidade de investigar que condições os locais devem cumprir (por exemplo, a existência de objetos fixos e marcantes) e o impacto de alterações visuais, como as sazonais, na robustez da âncora. Aplicam-se ainda as limitações do método B, por este ser usado na criação da âncora~\cite[Sec.~2.2.2.4]{ar4wind2023}. O mesmo grupo de autores publicou um \textit{framework} para registo global automático com âncoras georreferenciadas~\cite{burkard2024anchors}.
+The advantage is that the demanding manual step is done only once, by a trained person. The disadvantages are the restriction to predefined, pre-referenced locations, the need to investigate which conditions the locations must meet (for example, the presence of fixed, distinctive objects) and the impact of visual changes, such as seasonal ones, on the robustness of the anchor. The limitations of method B also apply, since it is used to create the anchor~\cite[Sec.~2.2.2.4]{ar4wind2023}. The same group of authors published a \textit{framework} for automatic global registration with georeferenced anchors~\cite{burkard2024anchors}.
 
 \begin{table}[htbp]
 \centering
-\caption{Métodos de calibração GeoAR do projeto \textit{ar4wind}~\cite{ar4wind2023}.}
+\caption{GeoAR calibration methods of the \textit{ar4wind} project~\cite{ar4wind2023}.}
 \label{tab:ar4wind_metodos}
 \small
 \begin{tabular}{p{2.5cm}p{3.5cm}p{3.5cm}p{3.5cm}}
 \hline
- & \textbf{A: referência e céu} & \textbf{B: modelo 3D} & \textbf{C: âncora} \\
+ & \textbf{A: reference and sky} & \textbf{B: 3D model} & \textbf{C: anchor} \\
 \hline
-Posição & Correção manual no mapa & Correção manual no mapa & Obtida da âncora \\
-Orientação & Linha de referência alinhada com um ponto real & Alinhamento por gestos do modelo 3D com a paisagem & Obtida da âncora \\
-Oclusão & Segmentação do céu por cor & Modelo 3D alinhado & Modelos 3D associados à âncora \\
-Dados externos & Mapas & Modelos 3D públicos (via servidor) & Âncoras pré-registadas e modelos 3D \\
-Principal limitação & Esforço manual; sensível à cor do céu & Disponibilidade de modelos 3D e infraestrutura & Só em locais pré-registados \\
-Estado & Avaliado em campo & Avaliado em campo & Protótipo, não testado em campo \\
+Position & Manual correction on the map & Manual correction on the map & Obtained from the anchor \\
+Orientation & Reference line aligned with a real point & Gesture-based alignment of the 3D model with the landscape & Obtained from the anchor \\
+Occlusion & Colour-based sky segmentation & Aligned 3D model & 3D models associated with the anchor \\
+External data & Maps & Public 3D models (via server) & Pre-registered anchors and 3D models \\
+Main limitation & Manual effort; sensitive to sky colour & Availability of 3D models and infrastructure & Only at pre-registered locations \\
+Status & Evaluated in the field & Evaluated in the field & Prototype, not tested in the field \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsubsection{Avaliação dos Métodos de Calibração}
+\subsubsection{Evaluation of the Calibration Methods}
 
-Os métodos A e B foram implementados em aplicações Unity para \textit{tablets}: o método A em iPad e o método B em Samsung Galaxy Tab. Foram depois avaliados em duas séries de ensaios de campo~\cite[Sec.~2.2.3 e 2.2.4]{ar4wind2023}.
+Methods A and B were implemented in Unity applications for \textit{tablets}: method A on iPad and method B on Samsung Galaxy Tab. They were then evaluated in two series of field trials~\cite[Sec.~2.2.3 and 2.2.4]{ar4wind2023}.
 
-Na \textbf{série I} (2022, protótipo 1 com o método A, quatro locais, cerca de 100 participantes e 48 questionários), a calibração manual consumiu grande parte do tempo dos eventos, e as restantes funcionalidades da aplicação praticamente não puderam ser avaliadas. Concluiu-se que o método A é exigente para leigos e mais adequado a peritos~\cite[Sec.~2.2.4.1]{ar4wind2023}.
+In \textbf{series I} (2022, prototype 1 with method A, four locations, about 100 participants and 48 questionnaires), manual calibration consumed a large part of the event time, and the remaining features of the application could hardly be evaluated. It was concluded that method A is demanding for laypeople and better suited to experts~\cite[Sec.~2.2.4.1]{ar4wind2023}.
 
-Na \textbf{série II} (2023, qualitativa, cerca de 30 participantes), o método B foi avaliado em Berlim (Volkspark Wuhlheide), num caso de planeamento fictício com doze turbinas a 1000--2000 metros. As principais observações sobre a calibração foram~\cite[Sec.~2.2.4.2]{ar4wind2023}:
+In \textbf{series II} (2023, qualitative, about 30 participants), method B was evaluated in Berlin (Volkspark Wuhlheide), in a fictitious planning case with twelve turbines at 1000--2000 metres. The main observations on calibration were~\cite[Sec.~2.2.4.2]{ar4wind2023}:
 
 \begin{itemize}
-    \item A calibração com o método B foi percebida como mais simples e rápida do que com o método A, e a visualização do modelo 3D aumenta a credibilidade, porque o alinhamento e as oclusões são sempre compreensíveis. Em geral, é mais adequado para leigos.
-    \item No método A, a dificuldade está em escolher objetos de referência e em encontrá-los no mapa, e a segmentação do céu depende muito do seu aspeto (por exemplo, céu azul com nuvens), podendo ser demorada.
-    \item Em locais com vegetação ou construção densas (por exemplo, uma pequena clareira), a visualização do modelo 3D pode ser confusa e a oclusão incorreta se o modelo não reproduzir esses objetos com resolução suficiente. Nesses casos, ou quando não existem modelos 3D atuais, o método A pode ser mais adequado.
-    \item A calibração não é totalmente autoexplicativa, pelo que se recomenda uma introdução prévia aos utilizadores. Após uma observação prolongada, é útil recalibrar, o que é rápido com o método B.
+    \item Calibration with method B was perceived as simpler and faster than with method A, and the visualisation of the 3D model increases credibility, because the alignment and the occlusions are always understandable. In general, it is better suited to laypeople.
+    \item With method A, the difficulty lies in choosing reference objects and finding them on the map, and sky segmentation depends strongly on the appearance of the sky (for example, blue sky with clouds) and can be time-consuming.
+    \item In locations with dense vegetation or buildings (for example, a small clearing), the visualisation of the 3D model can be confusing and the occlusion incorrect if the model does not reproduce those objects with sufficient resolution. In such cases, or when no up-to-date 3D models exist, method A may be more suitable.
+    \item Calibration is not entirely self-explanatory, so a prior introduction for users is recommended. After a prolonged observation, recalibrating is useful, and this is quick with method B.
 \end{itemize}
 
-Como limitações, o método C continua apenas ao nível de protótipo, sem testes de campo, o método B depende da disponibilidade de modelos 3D de qualidade, e a avaliação baseou-se em amostras reduzidas e selecionadas~\cite[Sec.~2.2.2.4 e 2.3]{ar4wind2023}. Como trabalho futuro, o relatório aponta a automatização total do processo de calibração, a que o método C procura dar resposta.
+As limitations, method C remains at prototype level, without field tests, method B depends on the availability of quality 3D models, and the evaluation was based on small, selected samples~\cite[Sec.~2.2.2.4 and 2.3]{ar4wind2023}. As future work, the report points to full automation of the calibration process, which method C aims to address.
 
-\subsubsection{Soluções Relacionadas Referidas no Relatório}
+\subsubsection{Related Solutions Mentioned in the Report}
 
-Além do VPS da Google (Secção~\ref{sec:sota_familias}), o relatório refere apenas duas aplicações semelhantes: uma da BayWa r.e., desenvolvida para um único parque eólico (Langenbrander Höhe), e a ReViSAR da EnBW, para a visualização de projetos de energias renováveis. Não é conhecido se são usadas em processos de participação, nem os autores conhecem outros trabalhos que analisem o efeito e o potencial da visualização em AR nesses processos~\cite[Sec.~2.4]{ar4wind2023}.
+Besides Google's VPS (Section~\ref{sec:sota_familias}), the report mentions only two similar applications: one by BayWa r.e., developed for a single wind farm (Langenbrander Höhe), and ReViSAR by EnBW, for the visualisation of renewable energy projects. It is not known whether they are used in participation processes, nor are the authors aware of other works that analyse the effect and potential of AR visualisation in such processes~\cite[Sec.~2.4]{ar4wind2023}.
 
 %----------------------------------------------------------------------
-\subsection{Calibração de Câmara a partir de Pixels e Coordenadas GPS (Sunkara)}
+\subsection{Camera Calibration from Pixels and GPS Coordinates (Sunkara)}
 \label{sec:sunkara}
 
 \begin{table}[htbp]
 \centering
-\caption{Ficha do trabalho: estimação da posição da câmara a partir de imagens e coordenadas GPS.}
+\caption{Work summary: estimating camera position from images and GPS coordinates.}
 \label{tab:ficha_sunkara}
 \small
 \begin{tabular}{p{3.2cm}p{9.8cm}}
 \hline
-\textbf{Referência} & Sunkara, R., \textit{Reconstructing the Real World: Estimating Camera Position from Images and GPS Coordinates}~\cite{sunkara2025} (artigo técnico publicado na plataforma Medium, não revisto por pares) \\
-\textbf{Âmbito} & Estimação da posição e da orientação de uma câmara fixa a partir de uma única imagem e de pontos de referência com coordenadas GPS conhecidas \\
-\textbf{Foco neste capítulo} & Método de calibração da câmara e reprojeção de pontos 3D no plano da imagem 2D \\
-\textbf{Dados de entrada} & Coordenadas de píxel $(x, y)$ na imagem e coordenadas GPS (latitude, longitude, altitude) dos pontos correspondentes \\
+\textbf{Reference} & Sunkara, R., \textit{Reconstructing the Real World: Estimating Camera Position from Images and GPS Coordinates}~\cite{sunkara2025} (technical article published on the Medium platform, not peer-reviewed) \\
+\textbf{Scope} & Estimating the position and orientation of a fixed camera from a single image and reference points with known GPS coordinates \\
+\textbf{Focus in this chapter} & Camera calibration method and reprojection of 3D points onto the 2D image plane \\
+\textbf{Input data} & Pixel coordinates $(x, y)$ in the image and GPS coordinates (latitude, longitude, altitude) of the corresponding points \\
 \hline
 \end{tabular}
 \end{table}
 
-\subsubsection{Contexto e Objetivos}
+\subsubsection{Context and Objectives}
 
-Ao contrário dos trabalhos que corrigem a pose do dispositivo com sensores ou modelos 3D da paisagem, este trabalho trata o problema inverso: partindo apenas de um conjunto de pontos identificados numa imagem estática e das respetivas coordenadas geográficas, pretende-se fazer \textit{reverse engineering} da câmara, isto é, determinar onde está e como está orientada~\cite{sunkara2025}. O objetivo é estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando exclusivamente correspondências entre píxeis e pontos GPS. O trabalho combina calibração de câmara, análise de incerteza e validação com dados reais num único \textit{pipeline}~\cite{sunkara2025}.
+Unlike the works that correct the pose of the device with sensors or 3D landscape models, this work addresses the inverse problem: starting only from a set of points identified in a static image and their geographic coordinates, the aim is to \textit{reverse engineer} the camera, that is, to determine where it is and how it is oriented~\cite{sunkara2025}. The objective is to estimate the intrinsic and extrinsic parameters of a real camera using only correspondences between pixels and GPS points. The work combines camera calibration, uncertainty analysis and validation with real data in a single \textit{pipeline}~\cite{sunkara2025}.
 
-\subsubsection{Fundamentos: Modelo de Câmara e Reprojeção}
+\subsubsection{Fundamentals: Camera Model and Reprojection}
 \label{sec:fundamentos_reprojecao}
 
-Esta subsecção resume os fundamentos geométricos habitualmente usados neste tipo de calibração; não descreve especificamente a implementação do artigo.
+This subsection summarises the geometric fundamentals commonly used in this type of calibration; it does not specifically describe the implementation of the article.
 
-No modelo de câmara \textit{pinhole}, um ponto 3D $\mathbf{X}=(X,Y,Z)^{\top}$, expresso num referencial do mundo, projeta-se no ponto de imagem $\mathbf{x}=(u,v)^{\top}$ de acordo com
+In the \textit{pinhole} camera model, a 3D point $\mathbf{X}=(X,Y,Z)^{\top}$, expressed in a world frame, projects onto the image point $\mathbf{x}=(u,v)^{\top}$ according to
 \begin{equation}
     s\,\tilde{\mathbf{x}} = \mathbf{K}\,[\,\mathbf{R}\mid\mathbf{t}\,]\,\tilde{\mathbf{X}},
     \qquad
@@ -173,27 +173,27 @@ No modelo de câmara \textit{pinhole}, um ponto 3D $\mathbf{X}=(X,Y,Z)^{\top}$, 
     \end{pmatrix},
     \label{eq:pinhole}
 \end{equation}
-onde $\tilde{\mathbf{x}}$ e $\tilde{\mathbf{X}}$ são coordenadas homogéneas, $s$ é um fator de escala, $\mathbf{K}$ é a matriz de parâmetros intrínsecos (distâncias focais $f_x$, $f_y$ em píxeis, ponto principal $(c_x,c_y)$ e enviesamento $s_k$) e $[\mathbf{R}\mid\mathbf{t}]$ são os parâmetros extrínsecos, que transformam do referencial do mundo para o da câmara. O centro da câmara no referencial do mundo é $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$. Na prática, o modelo é frequentemente completado por coeficientes de distorção radial e tangencial (não usados no artigo analisado).
+where $\tilde{\mathbf{x}}$ and $\tilde{\mathbf{X}}$ are homogeneous coordinates, $s$ is a scale factor, $\mathbf{K}$ is the intrinsic parameter matrix (focal lengths $f_x$, $f_y$ in pixels, principal point $(c_x,c_y)$ and skew $s_k$) and $[\mathbf{R}\mid\mathbf{t}]$ are the extrinsic parameters, which transform from the world frame to the camera frame. The camera centre in the world frame is $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$. In practice, the model is often extended with radial and tangential distortion coefficients (not used in the article analysed).
 
-Como as coordenadas GPS (latitude, longitude, altitude) são angulares, a aplicação de \eqref{eq:pinhole} exige primeiro convertê-las para um referencial cartesiano métrico local, por exemplo um referencial \textit{East-North-Up} (ENU) centrado num ponto de origem próximo da cena.
+Since GPS coordinates (latitude, longitude, altitude) are angular, applying \eqref{eq:pinhole} first requires converting them to a local metric Cartesian frame, for example an \textit{East-North-Up} (ENU) frame centred on an origin close to the scene.
 
-A calibração consiste em encontrar $\mathbf{K}$, $\mathbf{R}$ e $\mathbf{t}$ que minimizem o \textbf{erro de reprojeção}, a distância entre os píxeis observados $\mathbf{x}_i$ e a projeção dos pontos 3D correspondentes $\mathbf{X}_i$:
+Calibration consists in finding $\mathbf{K}$, $\mathbf{R}$ and $\mathbf{t}$ that minimise the \textbf{reprojection error}, the distance between the observed pixels $\mathbf{x}_i$ and the projection of the corresponding 3D points $\mathbf{X}_i$:
 \begin{equation}
     E=\sum_{i=1}^{N}\left\lVert \mathbf{x}_i-\pi\!\left(\mathbf{K},\mathbf{R},\mathbf{t},\mathbf{X}_i\right)\right\rVert^{2},
     \qquad
     E_{\mathrm{RMS}}=\sqrt{E/N},
     \label{eq:reproj}
 \end{equation}
-onde $\pi(\cdot)$ é a função de projeção de \eqref{eq:pinhole} seguida da divisão pela coordenada homogénea. O problema é habitualmente resolvido por uma estimativa inicial linear (por exemplo, \textit{Direct Linear Transform}), seguida de refinamento não linear por mínimos quadrados~\cite{hartley2004mvg}. Com $\mathbf{K}$ desconhecida, são necessários pelo menos seis pontos não coplanares para a solução linear; com $\mathbf{K}$ conhecida, o problema reduz-se à estimação da pose a partir de correspondências 2D--3D (\textit{Perspective-n-Point})~\cite{hartley2004mvg}.
+where $\pi(\cdot)$ is the projection function of \eqref{eq:pinhole} followed by division by the homogeneous coordinate. The problem is usually solved with a linear initial estimate (for example, the \textit{Direct Linear Transform}), followed by non-linear least-squares refinement~\cite{hartley2004mvg}. With unknown $\mathbf{K}$, at least six non-coplanar points are needed for the linear solution; with known $\mathbf{K}$, the problem reduces to pose estimation from 2D--3D correspondences (\textit{Perspective-n-Point})~\cite{hartley2004mvg}.
 
-\subsubsection{Método de Calibração}
+\subsubsection{Calibration Method}
 \label{sec:sunkara_metodo}
 
-O método parte de uma imagem estática e de um conjunto de pontos de interesse com coordenadas de píxel $(x, y)$ e coordenadas GPS (latitude, longitude, altitude) conhecidas. Com estas correspondências 2D--3D, o \textit{pipeline} estima os parâmetros intrínsecos e extrínsecos da câmara e, a partir deles, a sua posição e orientação 3D~\cite{sunkara2025}. O exemplo de partida usa um conjunto simples de seis marcos conhecidos, ao qual é depois acrescentado ruído para simular o erro de medição~\cite{sunkara2025}.
+The method starts from a static image and a set of points of interest with known pixel coordinates $(x, y)$ and GPS coordinates (latitude, longitude, altitude). With these 2D--3D correspondences, the \textit{pipeline} estimates the intrinsic and extrinsic parameters of the camera and, from them, its 3D position and orientation~\cite{sunkara2025}. The starting example uses a simple set of six known landmarks, to which noise is then added to simulate measurement error~\cite{sunkara2025}.
 
-\paragraph{Conversão GPS para um referencial local.} As coordenadas GPS reais (latitude, longitude, altitude) são convertidas para coordenadas \textit{East-North-Up} (ENU), usando uma origem local~\cite{sunkara2025}. O referencial ENU é cartesiano e métrico, o que permite tratar os pontos como pontos 3D no modelo de câmara da Equação~\eqref{eq:pinhole}.
+\paragraph{GPS to local frame conversion.} Real GPS coordinates (latitude, longitude, altitude) are converted to \textit{East-North-Up} (ENU) coordinates, using a local origin~\cite{sunkara2025}. The ENU frame is Cartesian and metric, which allows the points to be treated as 3D points in the camera model of Equation~\eqref{eq:pinhole}.
 
-\paragraph{Estimativa inicial dos parâmetros intrínsecos.} Antes da calibração, é fornecida uma estimativa inicial da matriz intrínseca com base no modelo \textit{pinhole}. A distância focal em píxeis é calculada a partir de uma estimativa do campo de visão vertical $\mathrm{vFOV}$ e da altura $h$ da imagem~\cite{sunkara2025}:
+\paragraph{Initial estimate of the intrinsic parameters.} Before calibration, an initial estimate of the intrinsic matrix is provided, based on the \textit{pinhole} model. The focal length in pixels is computed from an estimate of the vertical field of view $\mathrm{vFOV}$ and the image height $h$~\cite{sunkara2025}:
 \begin{equation}
     f_{\mathrm{est}}=\frac{h/2}{\tan\!\left(\mathrm{vFOV}/2\right)},
     \qquad
@@ -205,115 +205,115 @@ O método parte de uma imagem estática e de um conjunto de pontos de interesse 
     \end{pmatrix},
     \label{eq:k0}
 \end{equation}
-onde $w$ é a largura da imagem em píxeis. O artigo fixa manualmente esta estimativa (por exemplo, $\mathrm{vFOV}=80{,}94^{\circ}$ no primeiro local da parte~2), sem justificar nem referir de onde provém o valor~\cite{sunkara2025}; as distâncias focais iniciais dos três locais reais correspondem a campos de visão verticais de cerca de $80{,}9^{\circ}$, $63{,}6^{\circ}$ e $30{,}0^{\circ}$ (valores calculados a partir da Equação~\eqref{eq:k0}). Esta inicialização assume píxeis quadrados ($f_x=f_y$), enviesamento nulo e ponto principal no centro da imagem, o que corresponde à forma de $\mathbf{K}$ na Equação~\eqref{eq:pinhole} com $s_k=0$. O modelo de câmara usado não inclui coeficientes de distorção, tratando-se, portanto, de um modelo \textit{pinhole} ideal~\cite{sunkara2025}.
+where $w$ is the image width in pixels. The article fixes this estimate manually (for example, $\mathrm{vFOV}=80.94^{\circ}$ at the first location of part~2), without justifying it or stating where the value comes from~\cite{sunkara2025}; the initial focal lengths of the three real locations correspond to vertical fields of view of about $80.9^{\circ}$, $63.6^{\circ}$ and $30.0^{\circ}$ (values computed from Equation~\eqref{eq:k0}). This initialisation assumes square pixels ($f_x=f_y$), zero skew and the principal point at the image centre, which corresponds to the form of $\mathbf{K}$ in Equation~\eqref{eq:pinhole} with $s_k=0$. The camera model used does not include distortion coefficients, so it is therefore an ideal \textit{pinhole} model~\cite{sunkara2025}.
 
-\paragraph{Estimação dos parâmetros.} A calibração é feita com a função \texttt{cv2.calibrateCamera} do OpenCV, que, partindo de $\mathbf{K}_0$ (Equação~\eqref{eq:k0}), estima a matriz de rotação $\mathbf{R}$ e o vetor de translação $\mathbf{t}$ (e refina a distância focal, como se verifica nos resultados da Secção~\ref{sec:sunkara_resultados}) a partir das correspondências~\cite{sunkara2025}. O artigo não refere a utilização de nenhuma \textit{flag} de calibração, como a \texttt{CALIB\_USE\_INTRINSIC\_GUESS}, que na documentação do OpenCV serve para indicar que a matriz intrínseca fornecida deve ser usada como estimativa inicial. O artigo trabalha com dois referenciais: o referencial do mundo (ENU) e o referencial da câmara, em que, segundo a convenção do OpenCV, $X$ aponta para a direita, $Y$ para baixo e $Z$ para a frente. A transformação entre ambos é
+\paragraph{Parameter estimation.} Calibration is performed with OpenCV's \texttt{cv2.calibrateCamera} function which, starting from $\mathbf{K}_0$ (Equation~\eqref{eq:k0}), estimates the rotation matrix $\mathbf{R}$ and the translation vector $\mathbf{t}$ (and refines the focal length, as shown by the results in Section~\ref{sec:sunkara_resultados}) from the correspondences~\cite{sunkara2025}. The article does not mention the use of any calibration \textit{flag}, such as \texttt{CALIB\_USE\_INTRINSIC\_GUESS}, which in the OpenCV documentation indicates that the supplied intrinsic matrix should be used as an initial estimate. The article works with two frames: the world frame (ENU) and the camera frame, in which, following the OpenCV convention, $X$ points right, $Y$ points down and $Z$ points forward. The transformation between them is
 \begin{equation}
     \mathbf{P}_c=\mathbf{R}\,\mathbf{P}_{\mathrm{ENU}}+\mathbf{t},
     \label{eq:cam_world}
 \end{equation}
-onde $\mathbf{P}_c$ são as coordenadas do ponto no referencial da câmara e $\mathbf{P}_{\mathrm{ENU}}$ as coordenadas do mesmo ponto no referencial do mundo~\cite{sunkara2025}.
+where $\mathbf{P}_c$ are the coordinates of the point in the camera frame and $\mathbf{P}_{\mathrm{ENU}}$ the coordinates of the same point in the world frame~\cite{sunkara2025}.
 
-\paragraph{Cálculo do centro da câmara.} Conhecidos $\mathbf{R}$ e $\mathbf{t}$, a posição da câmara no referencial do mundo obtém-se por uma operação simples. O centro da câmara é a origem do referencial da câmara, isto é, o ponto $\mathbf{C}_{\mathrm{ENU}}$ para o qual $\mathbf{P}_c=\mathbf{0}$. Substituindo em \eqref{eq:cam_world}:
+\paragraph{Camera centre computation.} Once $\mathbf{R}$ and $\mathbf{t}$ are known, the position of the camera in the world frame is obtained by a simple operation. The camera centre is the origin of the camera frame, that is, the point $\mathbf{C}_{\mathrm{ENU}}$ for which $\mathbf{P}_c=\mathbf{0}$. Substituting into \eqref{eq:cam_world}:
 \begin{equation}
     \mathbf{0}=\mathbf{R}\,\mathbf{C}_{\mathrm{ENU}}+\mathbf{t}
     \;\Rightarrow\;
     \mathbf{C}_{\mathrm{ENU}}=-\mathbf{R}^{-1}\mathbf{t}.
 \end{equation}
-Como $\mathbf{R}$ é uma matriz ortogonal, $\mathbf{R}^{-1}=\mathbf{R}^{\top}$, pelo que
+Since $\mathbf{R}$ is an orthogonal matrix, $\mathbf{R}^{-1}=\mathbf{R}^{\top}$, so that
 \begin{equation}
     \mathbf{C}_{\mathrm{ENU}}=-\mathbf{R}^{\top}\mathbf{t}.
     \label{eq:cam_center}
 \end{equation}
-Esta é a expressão usada para recuperar a posição da câmara no referencial do mundo~\cite{sunkara2025}, coincidente com a relação $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$ apresentada nos fundamentos (Secção~\ref{sec:fundamentos_reprojecao}).
+This is the expression used to recover the position of the camera in the world frame~\cite{sunkara2025}, consistent with the relation $\mathbf{C}=-\mathbf{R}^{\top}\mathbf{t}$ presented in the fundamentals (Section~\ref{sec:fundamentos_reprojecao}).
 
-\subsubsection{Reprojeção de Pontos 3D na Imagem 2D}
+\subsubsection{Reprojection of 3D Points onto the 2D Image}
 
-A reprojeção é usada como mecanismo de validação da calibração: com os parâmetros estimados, projetam-se os pontos 3D (os pontos de referência com coordenadas GPS) no plano da imagem e comparam-se com os píxeis originalmente selecionados; a distância entre ambos corresponde ao erro de reprojeção da Equação~\eqref{eq:reproj}. O artigo usa o erro de reprojeção da calibração como métrica quantitativa~\cite{sunkara2025}.
+Reprojection is used as a mechanism to validate the calibration: with the estimated parameters, the 3D points (the reference points with GPS coordinates) are projected onto the image plane and compared with the originally selected pixels; the distance between the two corresponds to the reprojection error of Equation~\eqref{eq:reproj}. The article uses the calibration reprojection error as a quantitative metric~\cite{sunkara2025}.
 
-\subsubsection{Avaliação e Resultados}
+\subsubsection{Evaluation and Results}
 \label{sec:sunkara_resultados}
 
-O trabalho divide-se em duas partes, que vão de um conjunto de dados controlado a câmaras reais~\cite{sunkara2025}.
+The work is divided into two parts, which go from a controlled dataset to real cameras~\cite{sunkara2025}.
 
-\paragraph{Parte 1: análise \textit{leave-one-out}.} Parte de um conjunto de seis marcos com correspondências 2D--3D conhecidas. A calibração é repetida sete vezes: uma com todos os pontos e seis em que se retira um ponto de cada vez. A Tabela~\ref{tab:sunkara_loo} apresenta, para cada execução, o erro de reprojeção, a distância focal estimada ($f_x=f_y$), os campos de visão horizontal (HFOV) e vertical (VFOV) e o vetor de translação $\mathbf{t}$ no referencial ENU, e a Figura~\ref{fig:sunkara_loo} mostra os centros da câmara recuperados em cada execução~\cite{sunkara2025}.
+\paragraph{Part 1: \textit{leave-one-out} analysis.} It starts from a set of six landmarks with known 2D--3D correspondences. Calibration is repeated seven times: once with all points and six times with one point removed at a time. Table~\ref{tab:sunkara_loo} presents, for each run, the reprojection error, the estimated focal length ($f_x=f_y$), the horizontal (HFOV) and vertical (VFOV) fields of view and the translation vector $\mathbf{t}$ in the ENU frame, and Figure~\ref{fig:sunkara_loo} shows the camera centres recovered in each run~\cite{sunkara2025}.
 
 \begin{table}[htbp]
 \centering
-\caption{Resultados da análise \textit{leave-one-out} (parte 1)~\cite{sunkara2025}.}
+\caption{Results of the \textit{leave-one-out} analysis (part 1)~\cite{sunkara2025}.}
 \label{tab:sunkara_loo}
 \small
 \begin{tabular}{cccccc}
 \hline
-\textbf{Execução} & \textbf{Ponto retirado} & \textbf{Erro (px)} & \textbf{$f_x,f_y$ (px)} & \textbf{HFOV / VFOV ($^{\circ}$)} & \textbf{$\mathbf{t}$ (m) [E, N, U]} \\
+\textbf{Run} & \textbf{Dropped point} & \textbf{Error (px)} & \textbf{$f_x,f_y$ (px)} & \textbf{HFOV / VFOV ($^{\circ}$)} & \textbf{$\mathbf{t}$ (m) [E, N, U]} \\
 \hline
-0 & nenhum & 39,40 & 1327,6 & 88,6 / 72,4 & [$-6{,}90$; $1{,}70$; $32{,}90$] \\
-1 & 0 & 40,39 & 1256,3 & 91,8 / 75,5 & [$-9{,}75$; $2{,}70$; $23{,}49$] \\
-2 & 1 & 41,92 & 1223,6 & 93,3 / 76,9 & [$-11{,}53$; $-2{,}04$; $23{,}24$] \\
-3 & 2 & 21,50 & 1479,5 & 82,4 / 66,6 & [$21{,}80$; $-2{,}38$; $49{,}36$] \\
-4 & 3 & 31,04 & 1450,3 & 83,6 / 67,7 & [$-25{,}26$; $15{,}72$; $57{,}90$] \\
-5 & 4 & 28,87 & 1933,8 & 67,7 / 53,4 & [$-29{,}15$; $18{,}51$; $98{,}27$] \\
-6 & 5 & 9,65 & 1210,2 & 93,9 / 77,5 & [$-1{,}96$; $-2{,}77$; $11{,}00$] \\
+0 & none & 39.40 & 1327.6 & 88.6 / 72.4 & [$-6.90$, $1.70$, $32.90$] \\
+1 & 0 & 40.39 & 1256.3 & 91.8 / 75.5 & [$-9.75$, $2.70$, $23.49$] \\
+2 & 1 & 41.92 & 1223.6 & 93.3 / 76.9 & [$-11.53$, $-2.04$, $23.24$] \\
+3 & 2 & 21.50 & 1479.5 & 82.4 / 66.6 & [$21.80$, $-2.38$, $49.36$] \\
+4 & 3 & 31.04 & 1450.3 & 83.6 / 67.7 & [$-25.26$, $15.72$, $57.90$] \\
+5 & 4 & 28.87 & 1933.8 & 67.7 / 53.4 & [$-29.15$, $18.51$, $98.27$] \\
+6 & 5 & 9.65 & 1210.2 & 93.9 / 77.5 & [$-1.96$, $-2.77$, $11.00$] \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
 \centering
-% TODO: ajustar o caminho conforme a estrutura de pastas do template.
+% TODO: adjust the path to match the template's folder structure.
 \includegraphics[width=0.7\textwidth]{figs/leave_one_out_camera_centers.png}
-\caption{Centros da câmara recuperados (referencial ENU) nas execuções da análise \textit{leave-one-out}~\cite{sunkara2025}.}
+\caption{Camera centres recovered (ENU frame) in the runs of the \textit{leave-one-out} analysis~\cite{sunkara2025}.}
 \label{fig:sunkara_loo}
 \end{figure}
 
-Os resultados mostram que as estimativas são muito sensíveis a cada ponto individual. Com todos os pontos, o erro de reprojeção é de 39,40~px; ao retirar um ponto, varia entre 9,65~px (ponto 5) e 41,92~px (ponto 1). A distância focal estimada varia entre 1210,2 e 1933,8~px (HFOV entre $93{,}9^{\circ}$ e $67{,}7^{\circ}$), a componente vertical de $\mathbf{t}$ entre 11,00 e 98,27~m, e os centros da câmara recuperados dispersam-se por dezenas de metros (Figura~\ref{fig:sunkara_loo}). Como cada execução usa apenas cinco ou seis correspondências, o problema fica pouco condicionado. Uma redução do erro ao retirar um ponto (por exemplo, o ponto 5) pode indicar que esse ponto é inconsistente com os restantes, mas também resulta possivelmente por haver menos restrições a satisfazer, pelo que, por si só, não garante uma pose mais correta.
+The results show that the estimates are very sensitive to each individual point. With all points, the reprojection error is 39.40~px; when one point is removed, it varies between 9.65~px (point 5) and 41.92~px (point 1). The estimated focal length varies between 1210.2 and 1933.8~px (HFOV between $93.9^{\circ}$ and $67.7^{\circ}$), the vertical component of $\mathbf{t}$ between 11.00 and 98.27~m, and the recovered camera centres are scattered over tens of metres (Figure~\ref{fig:sunkara_loo}). Since each run uses only five or six correspondences, the problem is poorly conditioned. A reduction in error when a point is removed (for example, point 5) may indicate that this point is inconsistent with the others, but it may also result simply from there being fewer constraints to satisfy, so that, on its own, it does not guarantee a more correct pose.
 
-\paragraph{Parte 2: câmaras reais.} Valida o \textit{pipeline} com imagens de \textit{webcams} publicamente disponíveis de três locais da área de Boston. Para cada câmara, constrói um conjunto de dados de pontos de interesse (\textit{POI}) com as coordenadas de imagem e as coordenadas GPS de cada ponto, e repete a calibração com marcos conhecidos e posições GPS aproximadas~\cite{sunkara2025}. As Tabelas~\ref{tab:sunkara_reais_intr} e~\ref{tab:sunkara_reais_pose} resumem os resultados.
+\paragraph{Part 2: real cameras.} It validates the \textit{pipeline} with images from publicly available \textit{webcams} at three locations in the Boston area. For each camera, it builds a dataset of points of interest (\textit{POI}) with the image coordinates and the GPS coordinates of each point, and repeats the calibration with known landmarks and approximate GPS positions~\cite{sunkara2025}. Tables~\ref{tab:sunkara_reais_intr} and~\ref{tab:sunkara_reais_pose} summarise the results.
 
 \begin{table}[htbp]
 \centering
-\caption{Distância focal, erro de reprojeção e campos de visão nos três locais reais (parte 2)~\cite{sunkara2025}. As dimensões da imagem foram deduzidas da posição do ponto principal.}
+\caption{Focal length, reprojection error and fields of view at the three real locations (part 2)~\cite{sunkara2025}. The image dimensions were deduced from the position of the principal point.}
 \label{tab:sunkara_reais_intr}
 \small
 \begin{tabular}{ccccccc}
 \hline
-\textbf{Local} & \textbf{Imagem (px)} & \textbf{$f$ inicial (px)} & \textbf{$f$ estimada (px)} & \textbf{Erro (px)} & \textbf{HFOV ($^{\circ}$)} & \textbf{VFOV ($^{\circ}$)} \\
+\textbf{Location} & \textbf{Image (px)} & \textbf{Initial $f$ (px)} & \textbf{Estimated $f$ (px)} & \textbf{Error (px)} & \textbf{HFOV ($^{\circ}$)} & \textbf{VFOV ($^{\circ}$)} \\
 \hline
-1 & $2940\times1730$ & 1013,86 & 1021,30 & 18,11 & 110,42 & 80,53 \\
-2 & $1920\times1080$ & 871,10 & 998,96 & 50,83 & 87,72 & 56,79 \\
-3 & $1920\times1080$ & 2015,31 & 3236,62 & 5,61 & 46,62 & 26,71 \\
+1 & $2940\times1730$ & 1013.86 & 1021.30 & 18.11 & 110.42 & 80.53 \\
+2 & $1920\times1080$ & 871.10 & 998.96 & 50.83 & 87.72 & 56.79 \\
+3 & $1920\times1080$ & 2015.31 & 3236.62 & 5.61 & 46.62 & 26.71 \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Pose estimada nos três locais reais, no referencial ENU (parte 2). O centro da câmara $\mathbf{C}$ do local~1 é o reportado pelo artigo~\cite{sunkara2025}; os dos locais 2 e 3 foram calculados a partir de $\mathbf{R}$ e $\mathbf{t}$ com a Equação~\eqref{eq:cam_center}.}
+\caption{Estimated pose at the three real locations, in the ENU frame (part 2). The camera centre $\mathbf{C}$ of location~1 is the one reported by the article~\cite{sunkara2025}; those of locations 2 and 3 were computed from $\mathbf{R}$ and $\mathbf{t}$ with Equation~\eqref{eq:cam_center}.}
 \label{tab:sunkara_reais_pose}
 \small
 \begin{tabular}{ccc}
 \hline
-\textbf{Local} & \textbf{$\mathbf{t}$ (m) [E, N, U]} & \textbf{$\mathbf{C}$ (m) [E, N, U]} \\
+\textbf{Location} & \textbf{$\mathbf{t}$ (m) [E, N, U]} & \textbf{$\mathbf{C}$ (m) [E, N, U]} \\
 \hline
-1 & [$-24{,}55$; $15{,}70$; $50{,}34$] & [$57{,}62$; $-0{,}33$; $7{,}94$] \\
-2 & [$31{,}67$; $-35{,}04$; $23{,}08$] & [$5{,}87$; $-39{,}17$; $-34{,}56$] \\
-3 & [$243{,}13$; $219{,}27$; $819{,}29$] & [$-588{,}39$; $521{,}17$; $400{,}76$] \\
+1 & [$-24.55$, $15.70$, $50.34$] & [$57.62$, $-0.33$, $7.94$] \\
+2 & [$31.67$, $-35.04$, $23.08$] & [$5.87$, $-39.17$, $-34.56$] \\
+3 & [$243.13$, $219.27$, $819.29$] & [$-588.39$, $521.17$, $400.76$] \\
 \hline
 \end{tabular}
 \end{table}
 
-Observa-se o seguinte:
+The following can be observed:
 
 \begin{itemize}
-    \item O erro de reprojeção varia entre 5,61~px (local~3) e 50,83~px (local~2), sendo de 18,11~px no local~1.
-    \item Em todos os locais, apenas a distância focal é efetivamente ajustada: o ponto principal e a igualdade $f_x=f_y$ mantêm-se, e os coeficientes de distorção são nulos. A variação da distância focal face à estimativa inicial é pequena no local~1 (cerca de 0,7\%), moderada no local~2 (cerca de 15\%) e grande no local~3 (cerca de 61\%).
-    \item O local~3 tem o menor erro, o maior $f$ (3236,62~px) e o menor campo de visão (HFOV de $46{,}62^{\circ}$), com a câmara a cerca de 880~m da origem do referencial ENU, ao contrário dos locais 1 e 2, onde esta distância é de aproximadamente 58~m e 53~m.
-    \item Para o local~2, o artigo apresenta também os valores de $Z$ no referencial da câmara dos pontos usados (entre cerca de 58 e 152~m), todos positivos, isto é, à frente da câmara.
-    \item No local~1, o centro da câmara calculado com a Equação~\eqref{eq:cam_center} a partir de $\mathbf{R}$ e $\mathbf{t}$ coincide com o reportado pelo artigo.
+    \item The reprojection error varies between 5.61~px (location~3) and 50.83~px (location~2), and is 18.11~px at location~1.
+    \item At all locations, only the focal length is effectively adjusted: the principal point and the equality $f_x=f_y$ are kept, and the distortion coefficients are zero. The change in focal length relative to the initial estimate is small at location~1 (about 0.7\%), moderate at location~2 (about 15\%) and large at location~3 (about 61\%).
+    \item Location~3 has the lowest error, the largest $f$ (3236.62~px) and the smallest field of view (HFOV of $46.62^{\circ}$), with the camera about 880~m from the origin of the ENU frame, unlike locations 1 and 2, where this distance is approximately 58~m and 53~m.
+    \item For location~2, the article also presents the $Z$ values in the camera frame of the points used (between about 58 and 152~m), all positive, that is, in front of the camera.
+    \item At location~1, the camera centre computed with Equation~\eqref{eq:cam_center} from $\mathbf{R}$ and $\mathbf{t}$ coincides with the one reported by the article.
 \end{itemize}
 
-O artigo conclui que o \textit{pipeline} combina calibração de câmara, análise de incerteza e validação com dados reais, e que é possível estimar os parâmetros intrínsecos e extrínsecos de uma câmara real usando apenas píxeis e coordenadas GPS, passando de um conjunto de dados controlado para \textit{webcams} reais~\cite{sunkara2025}.
+The article concludes that the \textit{pipeline} combines camera calibration, uncertainty analysis and validation with real data, and that it is possible to estimate the intrinsic and extrinsic parameters of a real camera using only pixels and GPS coordinates, moving from a controlled dataset to real \textit{webcams}~\cite{sunkara2025}.
 
-\subsubsection{Limitações e Relação com os Restantes Trabalhos}
+\subsubsection{Limitations and Relation to the Other Works}
 
-Os resultados dependem da qualidade das correspondências: o próprio artigo simula o erro de medição acrescentando ruído às coordenadas 2D e 3D, e usa posições GPS aproximadas na parte real~\cite{sunkara2025}, o que evidencia a sensibilidade do método à precisão da seleção manual de píxeis e das coordenadas GPS (um erro de alguns metros no ponto 3D tem um efeito maior quanto mais próximo estiver da câmara). A análise \textit{leave-one-out} (Tabela~\ref{tab:sunkara_loo}) confirma esta sensibilidade: retirar um único ponto de seis altera a distância focal estimada entre 1210 e 1934~px. O modelo não inclui coeficientes de distorção, pelo que a distorção das lentes, quando existe, não é modelada e pode contribuir para o erro de reprojeção, e os valores do campo de visão vertical usados na inicialização não são justificados. Trata-se, além disso, de uma câmara fixa e de uma calibração feita \textit{a posteriori} a partir de uma imagem, e não de uma calibração em tempo real num dispositivo móvel.
+The results depend on the quality of the correspondences: the article itself simulates measurement error by adding noise to the 2D and 3D coordinates, and uses approximate GPS positions in the real part~\cite{sunkara2025}, which shows the sensitivity of the method to the precision of the manual pixel selection and of the GPS coordinates (an error of a few metres in the 3D point has a greater effect the closer it is to the camera). The \textit{leave-one-out} analysis (Table~\ref{tab:sunkara_loo}) confirms this sensitivity: removing a single point out of six changes the estimated focal length between 1210 and 1934~px. The model does not include distortion coefficients, so lens distortion, when present, is not modelled and may contribute to the reprojection error, and the vertical field-of-view values used in the initialisation are not justified. Furthermore, this is a fixed camera and a calibration performed \textit{a posteriori} from an image, rather than a real-time calibration on a mobile device.
