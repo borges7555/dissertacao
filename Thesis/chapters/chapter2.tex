@@ -11,11 +11,11 @@
 
 \textit{GeoAR} (geodata-based AR) refers to the display of virtual objects at specific geographic positions, for example planned wind turbines, superimposed on the camera image of a mobile device. While established development tools exist for indoor and short-range AR scenarios (for example, ARCore and ARKit), GeoAR faces additional challenges for which no tools were available on the market~\cite[Sec.~2.2.2.1]{ar4wind2023}. Two problems recur in the literature and in the works analysed.
 
-\paragraph{Geo-referenced localisation.} Displaying an object at the correct position requires knowing the position and orientation of the device in a geographic coordinate system. The sensors built into mobile devices (a GPS receiver for position and a digital compass for orientation) are too imprecise, which makes the virtual object appear at the wrong place on the screen and leads to a wrong perception of its location in the landscape~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
+\paragraph{Geo-referenced localization.} Displaying an object at the correct position requires knowing the position and orientation of the device in a geographic coordinate system. The sensors built into mobile devices (a GPS receiver for position and a digital compass for orientation) are too imprecise, which makes the virtual object appear at the wrong place on the screen and leads to a wrong perception of its location in the landscape~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
 
 \paragraph{Far-field occlusion.} For a credible result, virtual objects must be hidden by real elements such as vegetation, terrain or buildings. The sensors of mobile devices only allow the immediate surroundings to be reconstructed digitally, within a radius of a few metres, so occlusion by distant elements (for example, a forest) cannot be obtained directly~\cite[Sec.~2.2.2.1]{ar4wind2023}.
 
-Solving these two problems together is called \textit{GeoAR calibration}: before the visualisation can be correct, the system has to be adjusted so as to allow precise localisation and correct occlusion~\cite{ar4wind2023}.
+Solving these two problems together is called \textit{GeoAR calibration}: before the visualisation can be correct, the system has to be adjusted so as to allow precise localization and correct occlusion~\cite{ar4wind2023}.
 
 \subsection{Families of Approaches}
 \label{sec:sota_familias}
@@ -23,9 +23,9 @@ Solving these two problems together is called \textit{GeoAR calibration}: before
 Based on the works analysed, the following families of approaches can be distinguished:
 
 \begin{itemize}
-    \item \textbf{Automatic image-based approaches.} They compare the camera image with previously registered 3D models of large areas (point clouds). The \textit{ar4wind} report refers to the literature on large-scale visual geo-localisation~\cite{zamir2018geoloc} and to reviews of AR research~\cite{kim2018ismar}, but considers these solutions slow, error-prone and hard to transfer to arbitrary large areas~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
+    \item \textbf{Automatic image-based approaches.} They compare the camera image with previously registered 3D models of large areas (point clouds). The \textit{ar4wind} report refers to the literature on large-scale visual geo-localization~\cite{zamir2018geoloc} and to reviews of AR research~\cite{kim2018ismar}, but considers these solutions slow, error-prone and hard to transfer to arbitrary large areas~\cite[Sec.~1.2 and 2.2.2.1]{ar4wind2023}.
     \item \textbf{Proprietary visual positioning services.} The example mentioned is Google's \textit{Visual Positioning System} (VPS), available through the \textit{ARCore Geospatial API}. It depends on the provider's data (partly outdated) and only works along selected public roads, not on private property or in open spaces such as meadows and forests~\cite[Sec.~2.4]{ar4wind2023}.
-    \item \textbf{Manual, user-assisted calibration.} The user corrects position and orientation with the help of maps, reference points or 3D landscape models overlaid on the image. This is the approach adopted in \textit{ar4wind} (Section~\ref{sec:ar4wind_calibracao}).
+    \item \textbf{Manual, user-assisted calibration.} The user corrects position and orientation with the help of maps, reference points or 3D landscape models overlaid on the image. This is the approach adopted in \textit{ar4wind} (Section~\ref{sec:ar4wind_calibracao}) and in the application of Burkard and Fuchs-Kittowski~\cite{burkard2022gistam} (Section~\ref{sec:burkard2022}).
     \item \textbf{Calibration from 2D--3D correspondences.} It estimates the intrinsic and extrinsic parameters of the camera by minimising the reprojection error of points with known geographic coordinates (Section~\ref{sec:sunkara})~\cite{sunkara2025}.
     \item \textbf{Calibration with georeferenced anchors.} An expert registers an anchor at a location beforehand, which then allows automatic calibration by ordinary users (Section~\ref{sec:ar4wind_metodoC}).
 \end{itemize}
@@ -47,7 +47,7 @@ Based on the works analysed, the following families of approaches can be disting
 \hline
 \textbf{Reference} & \textit{Schlussbericht des Projekts ar4wind}~\cite{ar4wind2023} (report in German, 52 pages) \\
 \textbf{Scope} & \textit{In situ} visualisation of planned wind turbines with mobile AR (mAR), in public participation processes \\
-\textbf{Focus in this chapter} & GeoAR localisation and calibration (Sec.~2.2.2 of the report) and field evaluation results (Sec.~2.2.4) \\
+\textbf{Focus in this chapter} & GeoAR localization and calibration (Sec.~2.2.2 of the report) and field evaluation results (Sec.~2.2.4) \\
 \textbf{Platform} & Unity; iPad (iOS) and Samsung Galaxy Tab (Android) \\
 \hline
 \end{tabular}
@@ -132,6 +132,80 @@ As limitations, method C remains at prototype level, without field tests, method
 \subsubsection{Related Solutions Mentioned in the Report}
 
 Besides Google's VPS (Section~\ref{sec:sota_familias}), the report mentions only two similar applications: one by BayWa r.e., developed for a single wind farm (Langenbrander Höhe), and ReViSAR by EnBW, for the visualisation of renewable energy projects. It is not known whether they are used in participation processes, nor are the authors aware of other works that analyse the effect and potential of AR visualisation in such processes~\cite[Sec.~2.4]{ar4wind2023}.
+
+%----------------------------------------------------------------------
+\subsection{Mobile Outdoor AR for Wind Turbines Using Digital Surface Models (Burkard and Fuchs-Kittowski)}
+\label{sec:burkard2022}
+
+\begin{table}[htbp]
+\centering
+\caption{Work summary: mobile outdoor AR application for wind turbine visualisation using digital surface models.}
+\label{tab:ficha_burkard2022}
+\small
+\begin{tabular}{p{3.2cm}p{9.8cm}}
+\hline
+\textbf{Reference} & Burkard, S. and Fuchs-Kittowski, F., \textit{Mobile Outdoor AR Application for Precise Visualization of Wind Turbines using Digital Surface Models}, GISTAM 2022~\cite{burkard2022gistam} \\
+\textbf{Scope} & Mobile outdoor AR application for the on-site visualisation of planned wind turbines, with a user-aided global registration method based on 3D geospatial models \\
+\textbf{Focus in this chapter} & Global localization and calibration (Sections~3.3 and~4.3 of the paper) and the evaluation results. \\
+\textbf{Platform} & Native Android application with Google ARCore as the local tracking system \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Context and Objectives}
+
+The paper presents a mobile AR application that shows planned wind turbines at their intended geographic location, superimposed on the live camera image, in real time and on site. Compared with traditional visualisations such as paper-based photomontages, on-site AR offers a direct, immediate view from multiple angles, which is not limited to predefined viewpoints or a fixed number of images~\cite{burkard2022gistam}. The central technical challenge is the precise global localization of the device, which is needed to display the virtual 3D model at its actual planned location. The paper has two main contributions: a flexible user-aided localization technique that uses 3D geospatial data, such as digital surface models, and the application that implements it~\cite{burkard2022gistam}.
+
+\subsubsection{Global localization and Registration in the Literature}
+\label{sec:burkard2022_sota}
+
+The paper reviews the approaches to global AR registration (Sections~3.2 and~3.3 of the paper) and positions its own method against them~\cite{burkard2022gistam}:
+
+\begin{itemize}
+    \item \textbf{Location-based AR.} Many outdoor applications position content using only the GPS signal and the digital compass. These sensors are too inaccurate for precise 3D visualisation, so a realistic visualisation of the impact of new wind turbines is not possible with this technology. External D-GNSS receivers improve accuracy, but would make mobile AR complex and costly.
+    \item \textbf{Image-based (SLAM-based) global localization.} It is more precise, but requires a high-resolution georeferenced 3D point cloud of the entire environment, created in advance~\cite{zamir2018geoloc,kim2018ismar}. Because of the effort needed to create, store and deploy such models for large areas, these approaches have so far been used only in selected urban areas.
+    \item \textbf{Use of existing georeferenced data.} Examples include automatic localization with 3D building models from OpenStreetMap~\cite{liu2019slam}, matching of the horizon silhouette against digital terrain models~\cite{baatz2012} and automatic tracking of prominent terrain points~\cite{brejcha2020landscapear}. According to the paper, these automatic approaches are limited because they only work accurately in mountainous, prominent environments with distant views, or depend on other conditions, such as the presence of planar house facades.
+    \item \textbf{User-driven registration.} Few approaches exist. Kilimann et al.~\cite{kilimann2019ar} align virtual AR markers with highly visible, manually defined landmarks, correcting a single rotation angle of the global camera orientation. Manual, touch-based registration approaches also exist in ARGeo~\cite{gazcon2018argeo} and in the commercial application PeakFinderAR, but both are limited to mountainous environments with coarse terrain models and do not use additional local image-based tracking for greater stability.
+\end{itemize}
+
+Regarding AR systems for wind turbines, the paper reports that no practical system was available on the market. A first application from 2012 (LinkNode, UK) relied only on the internal sensors of the device and was therefore quite inaccurate, but it showed that such an application can improve laypeople's assessment of the impact of planned turbines~\cite{szymanek2015}. Besides it, only two research prototypes were known: the implementation of LandPlan OS (project ``MoDal-MR''), which registers the device with manually defined point-like reference markers such as church steeples, and the ``Linthwind'' prototype (Echtzeit GmbH and ZHAW), which uses previously defined mountain peaks. Their practical suitability had not been investigated~\cite{burkard2022gistam}.
+
+\subsubsection{Calibration Method}
+\label{sec:burkard2022_metodo}
+
+The proposed method uses 3D geospatial models as a virtual aid for efficient user-assisted global registration. It is combined with a state-of-the-art visual-inertial odometry (VIO) tracking system, which tracks the movement of the device in local space~\cite{burkard2022gistam}.
+
+\paragraph{Calibration data.} Three types of 3D geospatial data are supported, each with different properties and resolutions: a digital surface model (DSM), a 3D point cloud commonly acquired by LiDAR that models the earth's surface including vegetation and buildings; a digital terrain model (DTM), which describes the surface without vegetation and man-made features; and a digital 3D city model, which describes building outlines. The type and the extent of the data can be chosen by the user according to the nature of the environment (rural or urban) and the availability of each model, for example a 3D city model in urban areas and a terrain model in mountainous areas with distant views~\cite{burkard2022gistam}. The source data, usually provided in text-based form by GIS data providers, are converted offline into AR-ready models: transformation to a metric UTM coordinate system, splitting into smaller square tiles, generation of triangulated irregular network (TIN) meshes with incremental Delaunay triangulation, and storage on a server together with metadata, from where the client loads them on demand~\cite{burkard2022gistam}.
+
+\paragraph{Calibration procedure.} The procedure has the following steps~\cite{burkard2022gistam}:
+
+\begin{enumerate}
+    \item \textbf{Loading of the calibration data.} Suitable 3D models of the user's environment are loaded from the server.
+    \item \textbf{Initial rough pose.} The device obtains a rough estimate of its position from the GNSS receiver and of its orientation from the IMU sensor.
+    \item \textbf{Display of the virtual environment.} The 3D models are shown in the camera image as a rough, but usually still very flawed, projection of the environment (for example, the terrain surface or nearby buildings).
+    \item \textbf{User alignment.} The user moves the projected 3D environment on the screen until it matches the real view in the live camera video, using two common touch gestures: a drag-touch gesture (one finger) moves the virtual model on the screen, which corrects the rotation of the global camera orientation; a pinch-zoom gesture (two fingers) scales the virtual model, which corrects the global camera position.
+    \item \textbf{Confirmation.} After the manual alignment, the user confirms the calibration and the main AR view starts.
+\end{enumerate}
+
+In the background, the VIO tracking system continuously tracks the device movements in local space, which keeps the AR projection stable and free of drift after the calibration. The application uses Google ARCore for this purpose~\cite{burkard2022gistam}.
+
+\subsubsection{Evaluation and Results}
+
+The application was developed in cooperation with representatives of the target user group and evaluated in initial tests with potential end users~\cite{burkard2022gistam}. The reported results are:
+
+\begin{itemize}
+    \item The users rated the app positively, emphasising the realistic visualisation and the correct and robust positioning of the turbines.
+    \item The high degree of realism is attributed to the positionally accurate integration of the 3D environment models, which makes it possible to consider occlusions of the turbines by vegetation, terrain or buildings.
+    \item The additional manual effort for calibration was rated as acceptable. It does not make the app as easy to use as users would like, but is considered mandatory given the inaccuracy of the sensors of commercial mobile devices.
+    \item The user-driven calibration, combined with VIO tracking, achieved efficient global registration in various outdoor environments with reasonable user effort, determining the orientation of the device with less than one degree of deviation.
+    \item The alignment of the preloaded models can ideally be completed within a few seconds, which the authors consider faster and more straightforward than the approach of Kilimann et al.~\cite{kilimann2019ar}, where the user first selects landmarks on a map and then moves them to the correct position in the camera image.
+\end{itemize}
+
+The paper does not describe the protocol of these tests, the number of participants or how the deviation of less than one degree was measured~\cite{burkard2022gistam}.
+
+\subsubsection{Limitations}
+
+The authors identify the following limitations: the complexity of incorporating the geospatial data and their partial lack of availability, the large infrastructure needed to manage and provide such data for large areas, and the fact that the application was tested only in a small test area (Berlin and the Augsburg region), since the focus was on technical feasibility. As next steps, they plan a more intensive user evaluation, with emphasis on usability for non-experts and on making the calibration easier, and the integration and testing of other types of 3D models, such as textured, coloured surface and city models~\cite{burkard2022gistam}.
 
 %----------------------------------------------------------------------
 \subsection{Camera Calibration from Pixels and GPS Coordinates (Sunkara)}
@@ -314,6 +388,6 @@ The following can be observed:
 
 The article concludes that the \textit{pipeline} combines camera calibration, uncertainty analysis and validation with real data, and that it is possible to estimate the intrinsic and extrinsic parameters of a real camera using only pixels and GPS coordinates, moving from a controlled dataset to real \textit{webcams}~\cite{sunkara2025}.
 
-\subsubsection{Limitations and Relation to the Other Works}
+\subsubsection{Limitations}
 
 The results depend on the quality of the correspondences: the article itself simulates measurement error by adding noise to the 2D and 3D coordinates, and uses approximate GPS positions in the real part~\cite{sunkara2025}, which shows the sensitivity of the method to the precision of the manual pixel selection and of the GPS coordinates (an error of a few metres in the 3D point has a greater effect the closer it is to the camera). The \textit{leave-one-out} analysis (Table~\ref{tab:sunkara_loo}) confirms this sensitivity: removing a single point out of six changes the estimated focal length between 1210 and 1934~px. The model does not include distortion coefficients, so lens distortion, when present, is not modelled and may contribute to the reprojection error, and the vertical field-of-view values used in the initialisation are not justified. Furthermore, this is a fixed camera and a calibration performed \textit{a posteriori} from an image, rather than a real-time calibration on a mobile device.
